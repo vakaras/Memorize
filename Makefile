@@ -1,4 +1,4 @@
-PACKAGES={package_name}
+PACKAGES=memorize
 
 test:
 	bin/test $(PACKAGES) \

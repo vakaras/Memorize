@@ -1,4 +1,4 @@
-Welcome to {app_name}'s documentation!
+Welcome to memorize's documentation!
 ===================================
 
 Contents:
