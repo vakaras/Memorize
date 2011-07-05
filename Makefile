@@ -2,8 +2,7 @@ PACKAGES=memorize
 
 test:
 	bin/test $(PACKAGES) \
-		--with-coverage --cover-package="$(PACKAGES)" \
-		--cover-erase --cover-html --cover-html-dir=var/coverage
+		--with-coverage --cover-package="$(PACKAGES)" --cover-erase
 
 show-coverage: test
 	xdg-open var/coverage/index.html
