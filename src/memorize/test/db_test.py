@@ -15,5 +15,5 @@ def test_connection():
     """ Test for ``connect``.
     """
 
-    root = connect()
+    root = connect('data.fs')
     root["a"] = 1

@@ -20,8 +20,8 @@ def connect(path=DATABASE_PATH):
     """ Connects to database and returns its root.
     """
 
-    storage = FileStorage(DATABASE_PATH)
-    db = DB(storage)
-    connection = db.open()
+    storage = FileStorage(path)
+    database = DB(storage)
+    connection = database.open()
 
     return connection.root()
