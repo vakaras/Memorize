@@ -9,3 +9,4 @@ by tags associated with them.
 
 from memorize.tag_tree.tag import Tag, TagList
 from memorize.tag_tree.tagged_object import TaggedObject
+from memorize.tag_tree.tag_tree import TagTree

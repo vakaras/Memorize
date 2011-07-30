@@ -97,6 +97,8 @@ class TaggedObject(persistent.Persistent):
 
         try:
             del self._tags[tag.as_tuple()]
+            tag_node = self._tag_tree.get_tag_node(tag)
+            tag_node.remove_object(self)
         except TypeError:
             raise IntegrityError(
                     u'TaggedObject is not assigned to TagTree.')
@@ -105,8 +107,23 @@ class TaggedObject(persistent.Persistent):
                     u'TaggedObject is not tagged with {0}.'.format(
                         unicode(tag)))
 
+    def has_tag(self, tag):
+        """ Returns True if object is tagged by tag.
+        """
+
+        tag_tuple = tag.as_tuple()
+        length = len(tag_tuple)
+
+        for object_tag_tuple in self._tags.keys():
+            if object_tag_tuple[:length] == tag_tuple:
+                return True
+        return False
+
     def get_tag_list(self):
         """ Returns a list of tags, by which this object is tagged.
+
+        .. note::
+            Inherited tags are not returned.
         """
 
         return [Tag(tag) for tag in self._tags.keys()]

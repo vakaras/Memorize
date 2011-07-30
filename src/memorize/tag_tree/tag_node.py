@@ -11,7 +11,6 @@ from BTrees.IOBTree import IOBTree
 
 from memorize.tag_tree.exceptions import IntegrityError
 from memorize.tag_tree.tag import Tag
-from memorize.tag_tree.tagged_object import TaggedObject
 
 
 class TagNode(persistent.Persistent):
@@ -33,6 +32,18 @@ class TagNode(persistent.Persistent):
         self._children = OOBTree()
         self._objects = IOBTree()
 
+    def destroy(self):
+        """ Untags all objects, tagged by this TagNode, and also destroys
+        all children recursively.
+        """
+
+        for node in self._children.values():
+            node.destroy()
+
+        tag = self.get_tag()
+        for obj in list(self._objects.values()):
+            obj.remove_tag(tag)
+
     def create_child_node(self, name):
         """ Creates and returns child node.
         """
@@ -49,12 +60,13 @@ class TagNode(persistent.Persistent):
         """ Deletes child node.
         """
 
-        try:
-            del self._children[name]
-        except KeyError:
+        if not self._children.has_key(name):
             raise KeyError(
                     u'TagNode does not have child with name {0}.'.format(
                         name))
+        else:
+            self._children[name].destroy()
+            del self._children[name]
 
     def get_child_node(self, name):
         """ Returns child node.

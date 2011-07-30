@@ -49,6 +49,9 @@ class TaggedObjectTest(unittest.TestCase):
             def add_object(self, obj):
                 pass
 
+            def remove_object(self, obj):
+                pass
+
         class DummyTree(object):
             """ Dummy TagTree.
             """
