@@ -7,6 +7,8 @@
 
 import re
 
+from memorize.tag_tree.exceptions import IntegrityError
+
 
 DEFAULT_TAG_LEVEL_SEPARATOR_RE = u'\.'  # Have to be valid regexp value!
 DEFAULT_TAG_LEVEL_SEPARATOR = u'.'
@@ -45,6 +47,12 @@ class Tag(object):
                 else:
                     raise TypeError(
                             u'Tag level have to be an unicode string.')
+
+        if not self.levels:
+            raise IntegrityError(u'Tag cannot be empty!')
+        for level in self.levels:
+            if len(level) == 0:
+                raise IntegrityError(u'Tag level cannot be empty!')
 
     def as_tuple(self):
         """ Returns tag as tuple of unicode strings.

@@ -9,7 +9,8 @@
 import unittest
 
 
-from memorize.tag_tree.tag import Tag, TagList
+from memorize.tag_tree import Tag, TagList
+from memorize.tag_tree.exceptions import IntegrityError
 
 
 class TagTest(unittest.TestCase):
@@ -42,6 +43,10 @@ class TagTest(unittest.TestCase):
 
         self.assertEqual(Tag(u'a'), Tag(u'a'))
         self.assertNotEqual(Tag(u'a'), Tag(u'b'))
+
+        self.assertRaises(IntegrityError, Tag, u'')
+        self.assertRaises(IntegrityError, Tag, [u'', u''])
+        self.assertRaises(IntegrityError, Tag, [])
 
 
 class TagsListTest(unittest.TestCase):
