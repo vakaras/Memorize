@@ -10,7 +10,7 @@ import persistent
 from BTrees.OOBTree import OOBTree
 
 from memorize.tag_tree.exceptions import IntegrityError
-from memorize.tag_tree import Tag
+from memorize.tag_tree.tag import Tag
 
 
 class TaggedObject(persistent.Persistent):
