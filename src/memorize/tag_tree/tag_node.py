@@ -9,7 +9,6 @@ import persistent
 from BTrees.OOBTree import OOBTree
 from BTrees.IOBTree import IOBTree
 
-from memorize.tag_tree.exceptions import IntegrityError
 from memorize.tag_tree.tag import Tag
 
 
@@ -43,6 +42,16 @@ class TagNode(persistent.Persistent):
         tag = self.get_tag()
         for obj in list(self._objects.values()):
             obj.remove_tag(tag)
+
+    def get_parent(self):
+        """ Returns parent node.
+        """
+        return self._parent
+
+    def get_name(self):
+        """ Returns name (tag level) of this node.
+        """
+        return self._name
 
     def create_child_node(self, name):
         """ Creates and returns child node.
@@ -85,9 +94,9 @@ class TagNode(persistent.Persistent):
 
         levels = []
         node = self
-        while node._parent:
-            levels.append(node._name)
-            node = node._parent
+        while node.get_parent():
+            levels.append(node.get_name())
+            node = node.get_parent()
         return Tag(reversed(levels))
 
     def add_object(self, obj):

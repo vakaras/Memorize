@@ -9,7 +9,6 @@ import persistent
 from BTrees.IOBTree import IOBTree
 
 
-from memorize.tag_tree.exceptions import IntegrityError
 from memorize.tag_tree.tag import Tag
 from memorize.tag_tree.tag_node import TagNode
 
