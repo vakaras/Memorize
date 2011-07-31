@@ -1,6 +1,7 @@
 .installed.cfg
 .mr.developer.cfg
 .coverage
+bin/memorize
 bin/buildout
 bin/coverage
 bin/ctags
