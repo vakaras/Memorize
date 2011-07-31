@@ -8,6 +8,7 @@ extensions = [
     'sphinx.ext.intersphinx',
     'sphinx.ext.todo',
     'sphinx.ext.coverage',
+    'sphinx.ext.graphviz',
     'rst2pdf.pdfbuilder',
     ]
 
@@ -28,7 +29,7 @@ today_fmt = '%Y-%m-%d'
 exclude_patterns = ['build']
 add_function_parentheses = True
 pygments_style = 'sphinx'
-
+todo_include_todos = True
 
 # -- Options for HTML output ----------------------------------------------
 

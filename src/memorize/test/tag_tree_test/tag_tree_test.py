@@ -44,6 +44,7 @@ class TagTreeTest(unittest.TestCase):
             tree.assign(obj)
             obj.add_tag(Tag(tag))
         objects[8].add_tag(Tag(u'a.e.f'))
+        self.assertRaises(KeyError, objects[8].add_tag, Tag(u'h.e.f'))
 
         # Generated Tree:
         #             root

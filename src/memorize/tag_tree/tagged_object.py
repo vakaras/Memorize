@@ -2,7 +2,8 @@
 
 
 """ :py:class:`TaggedObject` is a base class for all objects, which are
-being to be stored in :py:class:`TagTree`.
+being to be stored in
+:py:class:`TagTree <memorize.tag_tree.tag_tree.TagTree>`.
 """
 
 
@@ -18,24 +19,6 @@ class TaggedObject(persistent.Persistent):
 
     .. warning::
         TaggedObject can be assigned just to one TagTree.
-
-    >>> tree = TagTree()
-    >>> tree2 = TagTree()
-    >>> obj = TaggedObject()
-    >>> tree.assign(obj)
-    >>> tree2.assign(obj)
-    ...
-    IntegrityError: 'TaggedObject can belong just to one tree.'
-    >>> a = Tag(u'a')
-    >>> obj.add_tag(a)
-    >>> tree.get(a)
-    [<TaggedObject at ...>]
-    >>> obj.remove_tag(a)
-    >>> tree.get(a)
-    []
-    >>> tree.get(u'a.b')
-    ...
-    UknownTagError
 
     """
 

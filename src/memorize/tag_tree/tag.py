@@ -2,6 +2,35 @@
 
 
 """ Converters to and from various representations of tags.
+
+Main purpose of using :py:class:`Tag` object is to have an ability
+to iterate through tag levels:
+
+>>> from memorize.tag_tree import Tag
+>>> tag = Tag(u'a.b.c')
+>>> for level in tag:
+...     print level
+a
+b
+c
+
+Similarly main purpose of using :py:class:`TagList` is the ability to
+iterate through :py:class:`tags <Tag>`:
+
+>>> from memorize.tag_tree import TagList
+>>> tag_list = TagList(
+...     u'''
+...     a.b.c.d.e
+...     a.b.c.h
+...     d.g.e.r
+...     ''')
+>>> for tag in tag_list:
+...     print unicode(tag)
+a.b.c.d.e
+a.b.c.h
+d.g.e.r
+
+
 """
 
 
