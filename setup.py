@@ -25,6 +25,7 @@ setup(
                                         # List of files, which have to
                                         # be installed into specific 
                                         # locations.
+        entry_points = {'console_scripts': ['memorize = memorize:main',]},
         #url='',                        # Home page.
         #download_url='',               # Page from which package could
                                         # be downloaded.
