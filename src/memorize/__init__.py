@@ -9,7 +9,12 @@ foreign language words.
 import sys
 import argparse
 
+from memorize.log import Logger
 from memorize.config import ConfigManager
+
+
+log = Logger('memorize', root=True)
+
 
 def main(argv=sys.argv[1:]):
     """ Main entry point.
@@ -18,9 +23,17 @@ def main(argv=sys.argv[1:]):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
             u'-c', u'--config', metavar=u'CONFIG_FILE', type=file,
-            dest=u'config_file', help=u'Location of config file.')
+            dest='config_file', help=u'Location of config file.')
+    parser.add_argument(
+            u'-l', u'--log-level', metavar=u'LOG_LEVEL',
+            dest='log_level', help=u'Log level.',
+            choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'],
+            default='WARNING',
+            )
 
     args = parser.parse_args(argv)
+
+    log.set_log_level(args.log_level)
 
     if args.config_file is None:
         config = {}
@@ -29,7 +42,9 @@ def main(argv=sys.argv[1:]):
         args.config_file.close()
     config = ConfigManager(config)
 
-    config.connect()
+    log.info(u'Config loaded.')
+
+    log.info(u'Program finished.')
 
 
 if __name__ == '__main__':
