@@ -18,6 +18,9 @@ import errno
 import shutil
 
 from memorize import db
+from memorize.holders import InformationHolderPlugin
+from memorize.parsers import ContainerNodeParser
+
 
 DEFAULT_CONFIGURATION = {
 
@@ -29,6 +32,14 @@ DEFAULT_CONFIGURATION = {
     # Automatically create needed directories.
     'create_directories': False,
 
+    'plugins': [
+        'memorize.holders.word.WordPlugin',
+        ],
+
+    # Directories to be searched for *.mem files.
+    'data_directories': [
+        os.path.join(os.getenv(u'HOME'), u'.memorize', u'data'),
+        ],
     }
 
 
@@ -48,6 +59,9 @@ class ConfigManager(object):
         self._db_root = None
         if self._data['connect_to_db']:
             self.connect()
+
+        self._plugins = None
+        self._xml_parsers = None
 
     def connect(self):
         """ Connects to ZODB.
@@ -75,3 +89,54 @@ class ConfigManager(object):
         if self._db_root is None:
             self.connect()
         return self._db_root
+
+
+    def collect_xml_parsers(self):
+        """ Collects XML parsers from registered plugins.
+        """
+
+        self.load_plugins()
+
+        self._xml_parsers = {
+                u'container': ContainerNodeParser()
+                }
+        for plugin in InformationHolderPlugin.plugins:
+            self._xml_parsers[plugin.tag_name] = plugin.xml_parser()
+
+    def load_plugins(self):
+        """ Loads plugins.
+        """
+
+        if self._plugins is not None:
+            # Plugins already loaded.
+            return
+
+        self._plugins = []
+
+        for plugin_path in self._data['plugins']:
+            parts = plugin_path.split('.')
+            try:
+                module = __import__(
+                        '.'.join(parts[:-1]), fromlist=parts[-1])
+            except ImportError:
+                raise ConfigurationError(
+                        u'Failed to load plugin: {0}.'.format(
+                            plugin_path.decode('utf-8')))
+            self._plugins.append(module)
+
+    @property
+    def xml_parsers(self):
+        """ Returns list of XML parsers.
+        """
+
+        if self._xml_parsers is None:
+            self.collect_xml_parsers()
+
+        return self._xml_parsers
+
+    def get_data_directories(self):
+        """ Returns paths to directories, which should be searched for
+        ``*.mem`` files.
+        """
+
+        return self._data['data_directories']

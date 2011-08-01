@@ -11,14 +11,35 @@ import argparse
 
 from memorize.log import Logger
 from memorize.config import ConfigManager
+from memorize.parsers import ParsersManager
 
 
 log = Logger('memorize', root=True)
 
 
+def sync(config, args):
+    """ Synchronizes ZODB with XML.
+    """
+
+    log.info(u'Starting sinchronization.')
+
+    log.info(u'Loaded XML parsers:')
+    for i, (tag, parser) in enumerate(config.xml_parsers.items()):
+        log.info(u'parser{0:03}: (tag=\"{1}\", parser={2})',
+            i, tag, parser)
+
+    manager = ParsersManager(config)
+    for file in manager.collect():
+        manager.parse_file(file)
+
+
 def main(argv=sys.argv[1:]):
     """ Main entry point.
     """
+
+    commands = {
+            'sync': sync,
+            }
 
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
@@ -30,6 +51,9 @@ def main(argv=sys.argv[1:]):
             choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'],
             default='WARNING',
             )
+    parser.add_argument(
+            u'command', choices=commands.keys(),
+            help=u'Command to execute.')
 
     args = parser.parse_args(argv)
 
@@ -43,6 +67,8 @@ def main(argv=sys.argv[1:]):
     config = ConfigManager(config)
 
     log.info(u'Config loaded.')
+
+    commands[args.command](config, args)
 
     log.info(u'Program finished.')
 
