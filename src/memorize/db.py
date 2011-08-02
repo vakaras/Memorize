@@ -25,3 +25,16 @@ def connect(path=DATABASE_PATH):
     connection = database.open()
 
     return connection.root()
+
+
+def create_or_get(container, key, create_cls):
+    """ Returns element from dict like ``container`` object by ``key``.
+    If entry referenced by ``key`` does not exist, then creates with
+    ``create_cls``.
+
+    :type container: dict like object
+    """
+
+    if not container.has_key(key):
+        container[key] = create_cls()
+    return container[key]
