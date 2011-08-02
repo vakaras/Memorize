@@ -9,6 +9,8 @@ foreign language words.
 import sys
 import argparse
 
+import transaction
+
 from memorize.log import Logger
 from memorize.config import ConfigManager
 from memorize.parsers import ParsersManager
@@ -31,6 +33,14 @@ def sync(config, args):
     manager = ParsersManager(config)
     for file in manager.collect():
         manager.parse_file(file)
+    manager.finalize()
+
+    if raw_input(u'Commit changes [y/N]:') == u'y':
+        transaction.commit()
+        log.info(u'Changes committed.')
+    else:
+        transaction.abort()
+        log.info(u'Changes aborted.')
 
 
 def main(argv=sys.argv[1:]):

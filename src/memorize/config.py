@@ -17,9 +17,12 @@ import os
 import errno
 import shutil
 
+from BTrees.OOBTree import OOBTree
+
 from memorize import db
+from memorize.tag_tree import TagTree
 from memorize.holders import InformationHolderPlugin
-from memorize.parsers import ContainerNodeParser
+from memorize.parsers import ContainerNodeParser, TagNodeParser
 
 
 DEFAULT_CONFIGURATION = {
@@ -90,6 +93,15 @@ class ConfigManager(object):
             self.connect()
         return self._db_root
 
+    @property
+    def tag_tree(self):
+        """ Returns Tag Tree object.
+        """
+
+        root = self.db_root
+        if not root.has_key(u'tree'):
+            root['tree'] = TagTree()
+        return root['tree']
 
     def collect_xml_parsers(self):
         """ Collects XML parsers from registered plugins.
@@ -97,11 +109,20 @@ class ConfigManager(object):
 
         self.load_plugins()
 
+        parsers_data = db.create_or_get(
+                self.db_root, 'parsers_data', OOBTree)
+
         self._xml_parsers = {
-                u'container': ContainerNodeParser()
+                u'container': ContainerNodeParser(
+                    db.create_or_get(parsers_data, 'container', OOBTree)),
+                u'tag': TagNodeParser(
+                    db.create_or_get(parsers_data, 'tag', OOBTree)),
                 }
         for plugin in InformationHolderPlugin.plugins:
-            self._xml_parsers[plugin.tag_name] = plugin.xml_parser()
+            self._xml_parsers[plugin.tag_name] = plugin.xml_parser(
+                    db.create_or_get(parsers_data, plugin.tag_name, OOBTree)
+                    )
+
 
     def load_plugins(self):
         """ Loads plugins.

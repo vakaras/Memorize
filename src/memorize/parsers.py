@@ -11,6 +11,7 @@ from glob import glob
 from lxml import etree
 
 from memorize.log import Logger
+from memorize.tag_tree import Tag
 
 
 log = Logger('memorize.parsers')
@@ -25,6 +26,8 @@ class ParsersManager(object):
 
         self.config = config
         self.parsers = config.xml_parsers
+        self._tag_tree = config.tag_tree
+        self.object_id_set = set()
 
     def parse_file(self, file):
         """ Parses given XML file.
@@ -60,6 +63,34 @@ class ParsersManager(object):
                 files.append(file)
         return files
 
+    def mark_object_id(self, object_id):
+        """ If object id is not used marks it as used. Otherwise raises
+        error.
+
+        :type object_id: int
+        """
+
+        if object_id in self.object_id_set:
+            raise IntegrityError(
+                    u'Object id {0} is already used.'.format(object_id))
+        else:
+            self.object_id_set.add(object_id)
+
+    def get_tag_tree(self):
+        """ Returns tag_tree.
+        """
+
+        return self._tag_tree
+
+    def finalize(self):
+        """ Call parsers to finalize their work.
+
+        This function is called after all data files are parsed.
+        """
+
+        for parser in self.parsers.values():
+            parser.finalize()
+
 
 class ContainerNodeParser(object):
     """ :py:class:`ContainerNodeParser` parses XML ``container`` node.
@@ -74,6 +105,10 @@ class ContainerNodeParser(object):
     +   calls parser for each children.
 
     """
+
+    def __init__(self, persistent_data):
+        """ This parser doesn't need to store data.
+        """
 
     def parse(self, manager, node):
         """ Parses given ``container`` node.
@@ -94,3 +129,34 @@ class ContainerNodeParser(object):
                     u'tags',
                     u'{0} {1}'.format(child.get(u'tags', u''), tags))
             manager.parse_node(child)
+
+    def finalize(self):
+        """ Because this parser haven't created any information holders
+        there are nothing to finalize.
+        """
+
+
+class TagNodeParser(object):
+    """ :py:class:`TagNodeParser` parses XML ``tag`` node.
+
+    Creates tag with name, which is mentioned in attribute ``name``.
+
+    """
+
+    def __init__(self, persistent_data):
+        """ This parser doesn't need to store data.
+        """
+
+    def parse(self, manager, node):
+        """ Parses given ``tag`` node.
+        """
+
+        tag = Tag(node.get(u'name').decode('utf-8'))
+        tree = manager.get_tag_tree()
+        tree.create_tag(tag)
+        log.debug('Tag \"{0}\" in TagTree created.', unicode(tag))
+
+    def finalize(self):
+        """ Because this parser haven't created any information holders
+        there are nothing to finalize.
+        """
