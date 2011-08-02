@@ -8,7 +8,7 @@
 import persistent
 from BTrees.IOBTree import IOBTree
 
-
+from memorize.tag_tree.exceptions import IntegrityError
 from memorize.tag_tree.tag import Tag
 from memorize.tag_tree.tag_node import TagNode
 
@@ -52,13 +52,27 @@ class TagTree(persistent.Persistent):
             node = node.get_child_node(level)
         parent.delete_child_node(level)
 
-    def assign(self, obj):
+    def assign(self, obj, object_id=None):
         """ Assigns object to tree.
+
+        If object_id is not given, then generates an unique one.
+
+        .. todo::
+            Create tests. (Unit and Doc.)
         """
 
-        obj.initialize(self._counter, self)
-        self._objects[self._counter] = obj
-        self._counter += 1
+        if object_id is None:
+            obj.initialize(self._counter, self)
+            self._objects[self._counter] = obj
+            self._counter += 1
+        elif self._objects.has_key(object_id):
+            raise IntegrityError(
+                    u'Object with id {0} already exists.'.format(object_id))
+        else:
+            obj.initialize(object_id, self)
+            self._objects[object_id] = obj
+            self._counter = max(self._counter, object_id) + 1
+
 
     def get_tag_node(self, tag):
         """ Returns TagNode by tag.
@@ -86,3 +100,12 @@ class TagTree(persistent.Persistent):
             if all([obj.has_tag(tag) for tag in tags]):
                 objects.append(obj)
         return objects
+
+    def get_object(self, object_id):
+        """ Returns object by its id.
+
+        .. todo::
+            Create tests. (Unit and Doc.)
+        """
+
+        return self._objects[object_id]
