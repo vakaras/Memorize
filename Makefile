@@ -16,10 +16,10 @@ show-check:
 
 # Creating environment.
 
-bootstrap:
-	python bootstrap.py
+bin/buildout:
+	python2.7 bootstrap.py
 
-buildout:
+buildout: bin/buildout
 	bin/buildout -v
 
 # Create source distribution.
