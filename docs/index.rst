@@ -4,10 +4,11 @@ Welcome to memorize's documentation!
 Contents:
 
 .. toctree::
-   :maxdepth: 2
+    :maxdepth: 2
 
-   tag_tree.rst
-   todo.rst
+    workflow.rst
+    tag_tree.rst
+    todo.rst
 
 Indices and tables
 ==================
