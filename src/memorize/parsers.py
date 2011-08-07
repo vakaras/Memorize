@@ -151,10 +151,10 @@ class TagNodeParser(object):
         """ Parses given ``tag`` node.
         """
 
-        tag = Tag(node.get(u'name').decode('utf-8'))
+        tag = Tag(unicode(node.get(u'name')))
         tree = manager.get_tag_tree()
         tree.create_tag(tag)
-        log.debug('Tag \"{0}\" in TagTree created.', unicode(tag))
+        log.debug(u'Tag \"{0}\" in TagTree created.', unicode(tag))
 
     def finalize(self):
         """ Because this parser haven't created any information holders

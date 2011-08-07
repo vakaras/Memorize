@@ -135,7 +135,10 @@ class Word(TaggedObject):
 
                 self.meanings[translation] = word_meaning
                 self.meanings_date[
-                        word_meaning.get_next_practice_unicode()
+                        u' -*- '.join([
+                            word_meaning.get_next_practice_unicode(),
+                            word_meaning.meaning
+                            ])
                         ] = word_meaning
                 meaning.add_word(self)
                 log.debug(
@@ -176,7 +179,7 @@ class XMLWordParser(object):
         if len(value) == 0:
             raise Exception(u'Word value cannot be empty.')
 
-        tags = TagList(node.get(u'tags', '').decode('utf-8'))
+        tags = TagList(node.get(u'tags', ''))
 
         translations = []
         parts = []
@@ -194,6 +197,8 @@ class XMLWordParser(object):
         except KeyError:
             word = Word(value, parts, translations)
             tree.assign(word, object_id)
+            for tag in tags:
+                word.add_tag(tag)
 
         try:
             self.words[value].append(word)

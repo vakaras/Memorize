@@ -8,12 +8,14 @@ foreign language words.
 
 import sys
 import argparse
+import random
 
 import transaction
 
 from memorize.log import Logger
 from memorize.config import ConfigManager
 from memorize.parsers import ParsersManager
+from memorize.manipulators import ManipulatorsManager
 
 
 log = Logger('memorize', root=True)
@@ -23,7 +25,7 @@ def sync(config, args):
     """ Synchronizes ZODB with XML.
     """
 
-    log.info(u'Starting sinchronization.')
+    log.info(u'Starting synchronization.')
 
     log.info(u'Loaded XML parsers:')
     for i, (tag, parser) in enumerate(config.xml_parsers.items()):
@@ -43,12 +45,34 @@ def sync(config, args):
         log.info(u'Changes aborted.')
 
 
+def give_lesson(config, args):
+    """ Gives a lesson.
+    """
+
+    log.info(u'Creating lesson.')
+
+    manager = ManipulatorsManager(config)
+    manager.init_manipulators()
+    questions = manager.collect_questions()
+    random.shuffle(questions)
+
+    log.info(u'Lesson created.')
+
+    for question in questions:
+        question.show(sys.stdout)
+        answer = raw_input(u'Answer: ').decode('utf-8')
+        question.parse_answer(answer, sys.stdout)
+
+    log.info(u'Lesson finished.')
+
+
 def main(argv=sys.argv[1:]):
     """ Main entry point.
     """
 
     commands = {
             'sync': sync,
+            'lesson': give_lesson,
             }
 
     parser = argparse.ArgumentParser(description=__doc__)
@@ -62,7 +86,7 @@ def main(argv=sys.argv[1:]):
             default='WARNING',
             )
     parser.add_argument(
-            u'command', choices=commands.keys(),
+            u'command', choices=commands.keys(), default='lesson',
             help=u'Command to execute.')
 
     args = parser.parse_args(argv)

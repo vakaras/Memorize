@@ -23,6 +23,7 @@ from memorize import db
 from memorize.tag_tree import TagTree
 from memorize.holders import InformationHolderPlugin
 from memorize.parsers import ContainerNodeParser, TagNodeParser
+from memorize.manipulators import ManipulatorPlugin
 
 
 DEFAULT_CONFIGURATION = {
@@ -33,10 +34,14 @@ DEFAULT_CONFIGURATION = {
     # Connect to ZODB at program start or wait until it is asked.
     'connect_to_db': False,
     # Automatically create needed directories.
-    'create_directories': False,
+    'create_directories': True,
 
     'plugins': [
+        # Holders.
         'memorize.holders.word.WordPlugin',
+
+        # Manipulators.
+        'memorize.manipulators.word.WordManipulatorPlugin',
         ],
 
     # Directories to be searched for *.mem files.
@@ -65,6 +70,7 @@ class ConfigManager(object):
 
         self._plugins = None
         self._xml_parsers = None
+        self._manipulators = None
 
     def connect(self):
         """ Connects to ZODB.
@@ -123,6 +129,12 @@ class ConfigManager(object):
                     db.create_or_get(parsers_data, plugin.tag_name, OOBTree)
                     )
 
+    def collect_manipulators(self):
+        """ Collects manipulators from registered plugins.
+        """
+
+        self.load_plugins()
+        self._manipulators = ManipulatorPlugin.plugins[:]
 
     def load_plugins(self):
         """ Loads plugins.
@@ -154,6 +166,16 @@ class ConfigManager(object):
             self.collect_xml_parsers()
 
         return self._xml_parsers
+
+    @property
+    def manipulators(self):
+        """ Returns list of manipulators.
+        """
+
+        if self._manipulators is None:
+            self.collect_manipulators()
+
+        return self._manipulators
 
     def get_data_directories(self):
         """ Returns paths to directories, which should be searched for
