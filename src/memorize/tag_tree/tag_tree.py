@@ -61,6 +61,8 @@ class TagTree(persistent.Persistent):
             Create tests. (Unit and Doc.)
         """
 
+        object_id = int(object_id) if object_id is not None else None
+
         if object_id is None:
             obj.initialize(self._counter, self)
             self._objects[self._counter] = obj

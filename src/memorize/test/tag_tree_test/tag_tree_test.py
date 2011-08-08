@@ -98,3 +98,14 @@ class TagTreeTest(unittest.TestCase):
         self.assertEquals(
                 sorted([unicode(tag) for tag in objects[8].get_tag_list()]),
                 [u'a.b.c.d'])
+
+        # Create object with special id.
+        obj = TaggedObject()
+        tree.assign(obj, 10000)
+        self.assertEquals(obj.get_id(), 10000)
+
+        self.assertRaises(
+                IntegrityError, tree.assign, TaggedObject(), 10000)
+
+        # Get object by id.
+        self.assertIs(obj, tree.get_object(10000))
