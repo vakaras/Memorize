@@ -85,7 +85,7 @@ class ConfigManager(object):
                 else:
                     raise
             else:
-                print 'Created directory: {0}.'.format(path)
+                print u'Created directory: {0}.'.format(path)
 
         self._db_root = db.connect(self._data['database_path'])
 
