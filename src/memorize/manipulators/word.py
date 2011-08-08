@@ -37,7 +37,6 @@ class WordQuestion(object):
 
         write = lambda text, color='white': file.write(colored(text, color))
 
-        # TODO: Show word and word meaning comments.
         write(u'Asking for word.\n')
         write(u'Tags assigned to word: ')
         write(
@@ -46,9 +45,14 @@ class WordQuestion(object):
                     ]),
                 'green')
         write(u'\n')
+        if self.word.comment:
+            write(u'Word comment: {0}\n'.format(self.word.comment))
         write(u'Word meaning: ')
         write(self.word_meaning.meaning.value, 'green')
         write(u'\n')
+        if self.word_meaning.comment:
+            write(u'Meaning comment: {0}\n'.format(
+                self.word_meaning.comment))
 
     def change_state(self, word, word_meaning, rating, write):
         """ Changes state of ``word_meaning``.

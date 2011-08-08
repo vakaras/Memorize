@@ -74,7 +74,7 @@ class Word(TaggedObject):
     can be used without modification.
     """
 
-    def __init__(self, value=None, parts=(), translations=()):
+    def __init__(self, value=None, comment=u'', parts=(), translations=()):
         """
 
         :param value: The word itself.
@@ -97,6 +97,7 @@ class Word(TaggedObject):
         if value is not None:
             self.value = value
 
+        self.comment = comment
         self.part_of = IOBTree()
         self.parts = list(parts)
         self.meanings = list(translations)
@@ -105,17 +106,14 @@ class Word(TaggedObject):
         """
         This function is called, when all data is read from files, to
         create links between words.
-
-        .. todo::
-            Implement Word comments and WordMeaning comments.
         """
 
         if isinstance(self.parts, list):
             # Creating new.
             parts = self.parts
             self.parts = IOBTree()
-            for value in parts:
-                for word in words[value]:
+            for info in parts:
+                for word in words[info[u'child']]:
                     log.debug(
                             u'{0} ({1}) is part of {2} ({3}).',
                             word.value, word.get_id(),
@@ -131,15 +129,15 @@ class Word(TaggedObject):
             translations = self.meanings
             self.meanings = OOBTree()
             self.meanings_date = OOBTree()
-            for translation in translations:
+            for info in translations:
+                translation = info[u'translation']
                 try:
                     meaning = meanings[translation]
                 except KeyError:
                     meaning = Meaning(translation)
                     meanings[translation] = meaning
 
-                word_meaning = WordMeaning(meaning, u'')
-                                        # TODO: Add meaning comments.
+                word_meaning = WordMeaning(meaning, info[u'comment'])
 
                 self.meanings[translation] = word_meaning
                 self.meanings_date[word_meaning.get_date_key()
@@ -171,7 +169,6 @@ class XMLWordParser(object):
         self.meanings = db.create_or_get(
                 persistent_data, u'meanings', OOBTree)
 
-
     def parse(self, manager, node):
         """ Parses given ``word`` node.
         """
@@ -179,19 +176,25 @@ class XMLWordParser(object):
         object_id = int(node.get(u'id'))
         manager.mark_object_id(object_id)
 
-        value = node.get(u'value', '').decode('utf-8').strip()
+        value = unicode(node.get(u'value', '')).strip()
         if len(value) == 0:
             raise Exception(u'Word value cannot be empty.')
 
-        tags = TagList(node.get(u'tags', ''))
+        tags = TagList(unicode(node.get(u'tags', u'')))
+        comment = unicode(node.get(u'comment', u''))
 
         translations = []
         parts = []
         for child in node:
             if child.tag == u'translation':
-                translations.append(child.text)
+                translations.append({
+                    u'translation': child.text,
+                    u'comment': unicode(child.get(u'comment', u'')),
+                    })
             elif child.tag == u'part':
-                parts.append(child)
+                parts.append({
+                    u'child': child,
+                    })
 
         tree = manager.get_tag_tree()
 
@@ -199,7 +202,7 @@ class XMLWordParser(object):
             word = tree.get_object(object_id)
             warnings.warn(u'Word updating is not implemented. Skipping.')
         except KeyError:
-            word = Word(value, parts, translations)
+            word = Word(value, comment, parts, translations)
             tree.assign(word, object_id)
             for tag in tags:
                 word.add_tag(tag)
