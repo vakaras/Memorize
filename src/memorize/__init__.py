@@ -67,6 +67,13 @@ def give_lesson(config, args):
     log.info(u'Lesson finished.')
 
 
+def get_free_id(config, args):
+    """ Prints smallest unused object id.
+    """
+
+    print config.tag_tree._counter
+
+
 def main(argv=sys.argv[1:]):
     """ Main entry point.
     """
@@ -74,6 +81,7 @@ def main(argv=sys.argv[1:]):
     commands = {
             'sync': sync,
             'lesson': give_lesson,
+            'getid': get_free_id,
             }
 
     parser = argparse.ArgumentParser(description=__doc__)
