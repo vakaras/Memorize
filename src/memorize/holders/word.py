@@ -23,6 +23,11 @@ log = Logger('memorize.holders.word')
 
 class Meaning(persistent.Persistent):
     """ Class representing one meaninig of word.
+
+    .. todo::
+
+        Add utility, which removes meanings, to which none words are
+        linked.
     """
 
     def __init__(self, value):
@@ -35,6 +40,12 @@ class Meaning(persistent.Persistent):
         """
 
         self.words[word.get_id()] = word
+
+    def remove_word(self, word):
+        """ Removes word from words, which have the same meaning, list.
+        """
+
+        del self.words[word.get_id()]
 
     def get_word_list(self):
         """ Returns list of words, which have this meaning.
@@ -153,28 +164,58 @@ class Word(TaggedObject):
 
 
     def add_composed(self, word):
-        """ Adds word, in which this word is part to list.
+        """ Adds word, in which this word is part, to list.
         """
 
         self.part_of[word.get_id()] = word
+
+    def remove_composed(self, word):
+        """ Removes word, in which this word is part, from list.
+        """
+
+        del self.part_of[word.get_id()]
+
+    def destroy(self):
+        """ Prepares word for deleting.
+        """
+
+        for word in self.part_of.values():
+            raise Exception((
+                u'Cannot delete word, which is part of {0}.').format(
+                    word.get_id()))
+        self.parts_of = None
+
+        for key, word in list(self.parts.items()):
+            word.remove_composed(self)
+            del self.parts[key]
+        self.parts = None
+
+        for key, word_meaning in list(self.meanings.items()):
+            word_meaning.meaning.remove_word(self)
+            del self.meanings[key]
+
+        self.meanings_date = None
 
 
 class XMLWordParser(object):
     """ Extracts information about Words.
     """
 
-    def __init__(self, persistent_data):
+    def __init__(self, manager, persistent_data):
 
+        self.manager = manager
         self.words = {}
+        self.words_list = db.create_or_get(
+                persistent_data, u'words', IOBTree)
         self.meanings = db.create_or_get(
                 persistent_data, u'meanings', OOBTree)
 
-    def parse(self, manager, node):
+    def parse(self, node):
         """ Parses given ``word`` node.
         """
 
         object_id = int(node.get(u'id'))
-        manager.mark_object_id(object_id)
+        self.manager.mark_object_id(object_id)
 
         value = unicode(node.get(u'value', '')).strip()
         if len(value) == 0:
@@ -196,7 +237,7 @@ class XMLWordParser(object):
                     u'child': child,
                     })
 
-        tree = manager.get_tag_tree()
+        tree = self.manager.get_tag_tree()
 
         try:
             word = tree.get_object(object_id)
@@ -206,6 +247,7 @@ class XMLWordParser(object):
             tree.assign(word, object_id)
             for tag in tags:
                 word.add_tag(tag)
+            self.words_list[object_id] = word
 
         try:
             self.words[value].append(word)
@@ -220,6 +262,16 @@ class XMLWordParser(object):
         for words in self.words.values():
             for word in words:
                 word.create_links(self.words, self.meanings)
+
+        log.info(u'Deleting words:')
+        objects = set(self.words_list) - self.manager.object_id_set
+        tree = self.manager.get_tag_tree()
+        for object_id in objects:
+            word = self.words_list[object_id]
+            log.info(u'Deleting: \"{0}\" ({1})', word.value, object_id)
+            word.destroy()
+            tree.unassign(word)
+            del self.words_list[object_id]
 
 
 class WordPlugin(InformationHolderPlugin):

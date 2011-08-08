@@ -69,7 +69,6 @@ class ConfigManager(object):
             self.connect()
 
         self._plugins = None
-        self._xml_parsers = None
         self._manipulators = None
 
     def connect(self):
@@ -109,7 +108,7 @@ class ConfigManager(object):
             root['tree'] = TagTree()
         return root['tree']
 
-    def collect_xml_parsers(self):
+    def get_xml_parsers(self, parsers_manager):
         """ Collects XML parsers from registered plugins.
         """
 
@@ -118,16 +117,21 @@ class ConfigManager(object):
         parsers_data = db.create_or_get(
                 self.db_root, 'parsers_data', OOBTree)
 
-        self._xml_parsers = {
+        xml_parsers = {
                 u'container': ContainerNodeParser(
+                    parsers_manager,
                     db.create_or_get(parsers_data, 'container', OOBTree)),
                 u'tag': TagNodeParser(
+                    parsers_manager,
                     db.create_or_get(parsers_data, 'tag', OOBTree)),
                 }
         for plugin in InformationHolderPlugin.plugins:
-            self._xml_parsers[plugin.tag_name] = plugin.xml_parser(
+            xml_parsers[plugin.tag_name] = plugin.xml_parser(
+                    parsers_manager,
                     db.create_or_get(parsers_data, plugin.tag_name, OOBTree)
                     )
+
+        return xml_parsers
 
     def collect_manipulators(self):
         """ Collects manipulators from registered plugins.
@@ -156,16 +160,6 @@ class ConfigManager(object):
                         u'Failed to load plugin: {0}.'.format(
                             plugin_path.decode('utf-8')))
             self._plugins.append(module)
-
-    @property
-    def xml_parsers(self):
-        """ Returns list of XML parsers.
-        """
-
-        if self._xml_parsers is None:
-            self.collect_xml_parsers()
-
-        return self._xml_parsers
 
     @property
     def manipulators(self):

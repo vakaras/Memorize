@@ -27,11 +27,6 @@ def sync(config, args):
 
     log.info(u'Starting synchronization.')
 
-    log.info(u'Loaded XML parsers:')
-    for i, (tag, parser) in enumerate(config.xml_parsers.items()):
-        log.info(u'parser{0:03}: (tag=\"{1}\", parser={2})',
-            i, tag, parser)
-
     manager = ParsersManager(config)
     for file in manager.collect():
         manager.parse_file(file)

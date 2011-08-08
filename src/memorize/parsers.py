@@ -25,9 +25,10 @@ class ParsersManager(object):
     def __init__(self, config):
 
         self.config = config
-        self.parsers = config.xml_parsers
         self._tag_tree = config.tag_tree
         self.object_id_set = set()
+        self.parsers = []
+        self.parsers = config.get_xml_parsers(self)
 
     def parse_file(self, file):
         """ Parses given XML file.
@@ -47,7 +48,7 @@ class ParsersManager(object):
             parser = self.parsers[node.tag]
         except KeyError:
             raise ValueError(u'No parser for {0}.'.format(node.tag))
-        parser.parse(self, node)
+        parser.parse(node)
 
     def collect(self):
         """ Collects all ``*.mem`` files.
@@ -106,11 +107,12 @@ class ContainerNodeParser(object):
 
     """
 
-    def __init__(self, persistent_data):
+    def __init__(self, manager, persistent_data):
         """ This parser doesn't need to store data.
         """
+        self.manager = manager
 
-    def parse(self, manager, node):
+    def parse(self, node):
         """ Parses given ``container`` node.
         """
 
@@ -128,7 +130,7 @@ class ContainerNodeParser(object):
             child.set(
                     u'tags',
                     u'{0} {1}'.format(child.get(u'tags', u''), tags))
-            manager.parse_node(child)
+            self.manager.parse_node(child)
 
     def finalize(self):
         """ Because this parser haven't created any information holders
@@ -143,16 +145,18 @@ class TagNodeParser(object):
 
     """
 
-    def __init__(self, persistent_data):
+    def __init__(self, manager, persistent_data):
         """ This parser doesn't need to store data.
         """
 
-    def parse(self, manager, node):
+        self.manager = manager
+
+    def parse(self, node):
         """ Parses given ``tag`` node.
         """
 
         tag = Tag(unicode(node.get(u'name')))
-        tree = manager.get_tag_tree()
+        tree = self.manager.get_tag_tree()
         tree.create_tag(tag)
         log.debug(u'Tag \"{0}\" in TagTree created.', unicode(tag))
 
