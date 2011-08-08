@@ -54,15 +54,20 @@ def give_lesson(config, args):
     manager = ManipulatorsManager(config)
     manager.init_manipulators()
     questions = manager.collect_questions()
+    if not questions:
+        sys.stdout.write(u'No questions.\n')
     random.shuffle(questions)
 
     log.info(u'Lesson created.')
 
+    separator = u'-' * 60 + u'\n'
     for question in questions:
+        sys.stdout.write(separator)
         question.show(sys.stdout)
         answer = raw_input(u'Answer: ').decode('utf-8')
         question.parse_answer(answer, sys.stdout)
         transaction.commit()
+        log.info(u'Changes committed.')
 
     log.info(u'Lesson finished.')
 
