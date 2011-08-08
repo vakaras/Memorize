@@ -109,3 +109,12 @@ class TagTreeTest(unittest.TestCase):
 
         # Get object by id.
         self.assertIs(obj, tree.get_object(10000))
+
+        # Remove object from tree.
+        tree2 = TagTree()
+        self.assertRaises(KeyError, tree2.unassign, obj)
+        tree2.assign(TaggedObject(), 10000)
+        self.assertRaises(IntegrityError, tree2.unassign, obj)
+
+        obj.add_tag(Tag(u'a.b.c'))
+        tree.unassign(obj)

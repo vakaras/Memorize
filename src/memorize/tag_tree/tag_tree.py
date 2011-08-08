@@ -56,9 +56,6 @@ class TagTree(persistent.Persistent):
         """ Assigns object to tree.
 
         If object_id is not given, then generates an unique one.
-
-        .. todo::
-            Create tests. (Unit and Doc.)
         """
 
         object_id = int(object_id) if object_id is not None else None
@@ -75,6 +72,17 @@ class TagTree(persistent.Persistent):
             self._objects[object_id] = obj
             self._counter = max(self._counter, object_id) + 1
 
+    def unassign(self, obj):
+        """ Unassigns object from tree.
+        """
+
+        if not obj is self._objects[obj.get_id()]:
+            raise IntegrityError(
+                    u'Object is not assigned to this tree.')
+        else:
+            object_id = obj.get_id()
+            obj.uninitialize()
+            del self._objects[object_id]
 
     def get_tag_node(self, tag):
         """ Returns TagNode by tag.

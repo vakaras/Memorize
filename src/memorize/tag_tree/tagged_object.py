@@ -44,6 +44,19 @@ class TaggedObject(persistent.Persistent):
             self._tags = OOBTree()
             self._tag_tree = tag_tree
 
+    def uninitialize(self):
+        """ This function is called, when object is removed from tree.
+        """
+
+        # Remove all tags.
+        for tag in self.get_tag_list():
+            self.remove_tag(tag)
+
+        # Mark as uninitialized.
+        self._id = None
+        self._tags = None
+        self._tag_tree = None
+
     def get_id(self):
         """ Returns unique id of the object.
         """
