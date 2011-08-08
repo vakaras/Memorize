@@ -62,6 +62,7 @@ def give_lesson(config, args):
         question.show(sys.stdout)
         answer = raw_input(u'Answer: ').decode('utf-8')
         question.parse_answer(answer, sys.stdout)
+        transaction.commit()
 
     log.info(u'Lesson finished.')
 
