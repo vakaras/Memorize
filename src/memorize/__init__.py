@@ -23,6 +23,9 @@ log = Logger('memorize', root=True)
 
 def sync(config, args):
     """ Synchronizes ZODB with XML.
+
+    .. todo::
+        Tags have to be sourced before any other data!
     """
 
     log.info(u'Starting synchronization.')
@@ -76,6 +79,9 @@ def get_free_id(config, args):
 
 def main(argv=sys.argv[1:]):
     """ Main entry point.
+
+    .. todo::
+        Make all commands plugable.
     """
 
     commands = {
