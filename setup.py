@@ -20,6 +20,7 @@ setup(
         install_requires=[              # Dependencies for the package.
             'ZODB3',
             'lxml',
+            'termcolor',
             ],
         scripts=[],                     # List of python script files.
         #data_files=[('/etc/init.d', ['init-script'])]
