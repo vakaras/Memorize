@@ -59,7 +59,7 @@ class TagNode(persistent.Persistent):
 
         if self._children.has_key(name):
             raise KeyError(
-                    u'TagNode already has child with name {0}.'.format(
+                    u'TagNode already has child with name \"{0}\".'.format(
                         name))
         else:
             self._children[name] = TagNode(name, self)
@@ -70,9 +70,9 @@ class TagNode(persistent.Persistent):
         """
 
         if not self._children.has_key(name):
-            raise KeyError(
-                    u'TagNode does not have child with name {0}.'.format(
-                        name))
+            raise KeyError((
+                u'TagNode does not have child with name \"{0}\".'
+                ).format(name))
         else:
             self._children[name].destroy()
             del self._children[name]
@@ -84,9 +84,9 @@ class TagNode(persistent.Persistent):
         try:
             return self._children[name]
         except KeyError:
-            raise KeyError(
-                    u'TagNode does not have child with name {0}.'.format(
-                        name))
+            raise KeyError((
+                u'TagNode does not have child with name \"{0}\".'
+                ).format(name))
 
     def get_tag(self):
         """ Returns :py:class:`Tag`, which this node represents.
