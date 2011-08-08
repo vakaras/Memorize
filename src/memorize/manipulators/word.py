@@ -1,6 +1,4 @@
 #!/usr/bin/python
-# -*- encoding: utf-8 -*-
-# TODO: Remove encoding.
 
 
 """ Manipulator for words.
@@ -86,16 +84,6 @@ class WordQuestion(object):
 
 
         # Evaluates answer.
-        # TODO: Turi priimti kaip teisingus:
-        #   +   tą kurio buvo paklausta;
-        #   +   bet kurį, turintį tą pačią prasmę;
-        #   +   kelis teisingus, kurie atskirti u'|'
-        #   Kiekvienam naudotojo atsakymui, kuris yra tarp teisingų:
-        #     + pažymėti, kaip teisingai atsakytą;
-        #     + informuoti apie tai naudotoją;
-        #   Jei atsakymas, kurio buvo tikėtasi:
-        #     + nėra tarp atsakymų, pažymėti jį, kaip neatsakytą.
-
         for user_answer in user_answers:
             if user_answer in correct_answers:
                 # Informing user.
