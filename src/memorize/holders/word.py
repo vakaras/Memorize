@@ -12,6 +12,7 @@ from BTrees.IOBTree import IOBTree
 from BTrees.OOBTree import OOBTree
 
 from memorize.log import Logger
+from memorize.utils import Writer
 from memorize import db
 from memorize.memorizable import Memorizable
 from memorize.holders import InformationHolderPlugin
@@ -210,6 +211,8 @@ class XMLWordParser(object):
         self.meanings = db.create_or_get(
                 persistent_data, u'meanings', OOBTree)
 
+        self.write = Writer().write
+
     def parse(self, node):
         """ Parses given ``word`` node.
         """
@@ -248,6 +251,9 @@ class XMLWordParser(object):
             for tag in tags:
                 word.add_tag(tag)
             self.words_list[object_id] = word
+            self.write(
+                    u'{0}: \"{1}\" ({2})\n', (u'Adding', 'green'),
+                    word.value, object_id)
 
         try:
             self.words[value].append(word)
@@ -263,15 +269,18 @@ class XMLWordParser(object):
             for word in words:
                 word.create_links(self.words, self.meanings)
 
-        log.info(u'Deleting words:')
         objects = set(self.words_list) - self.manager.object_id_set
-        tree = self.manager.get_tag_tree()
-        for object_id in objects:
-            word = self.words_list[object_id]
-            log.info(u'Deleting: \"{0}\" ({1})', word.value, object_id)
-            word.destroy()
-            tree.unassign(word)
-            del self.words_list[object_id]
+
+        if objects:
+            tree = self.manager.get_tag_tree()
+            for object_id in objects:
+                word = self.words_list[object_id]
+                self.write(
+                        u'{0}: \"{1}\" ({2})\n', (u'Deleting', 'red'),
+                        word.value, object_id)
+                word.destroy()
+                tree.unassign(word)
+                del self.words_list[object_id]
 
 
 class WordPlugin(InformationHolderPlugin):

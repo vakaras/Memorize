@@ -7,9 +7,8 @@
 
 import datetime
 
-from termcolor import colored
-
 from memorize.log import Logger
+from memorize.utils import Writer
 from memorize.manipulators import ManipulatorPlugin
 from memorize.tag_tree import TagList
 
@@ -35,24 +34,19 @@ class WordQuestion(object):
 
         log.debug(u'Showing WordQuestion.')
 
-        write = lambda text, color='white': file.write(colored(text, color))
+        write = Writer(file).write
 
         write(u'Asking for word.\n')
-        write(u'Tags assigned to word: ')
-        write(
-                u' '.join([
-                    unicode(tag) for tag in self.word.get_tag_list()
-                    ]),
-                'green')
-        write(u'\n')
+        write(u'Tags assigned to word: {0}\n',
+              (u' '.join([
+                  unicode(tag) for tag in self.word.get_tag_list()]),
+               'green',))
         if self.word.comment:
-            write(u'Word comment: {0}\n'.format(self.word.comment))
-        write(u'Word meaning: ')
-        write(self.word_meaning.meaning.value, 'green')
-        write(u'\n')
+            write(u'Word comment: {0}\n', self.word.comment)
+        write(u'Word meaning: {0}\n',
+              (self.word_meaning.meaning.value, 'green'))
         if self.word_meaning.comment:
-            write(u'Meaning comment: {0}\n'.format(
-                self.word_meaning.comment))
+            write(u'Meaning comment: {0}\n', self.word_meaning.comment)
 
     def change_state(self, word, word_meaning, rating, write):
         """ Changes state of ``word_meaning``.
@@ -68,16 +62,12 @@ class WordQuestion(object):
 
     def parse_answer(self, answer, file):
         """ Parses user answer and prints response.
-
-        .. todo::
-            Write colorful printer, which has method:
-
-            ``write(u'template', (obj, color), (obj, color),...)``.
         """
 
         log.debug(u'Parsing user answer')
 
-        write = lambda text, color='white': file.write(colored(text, color))
+        writer = Writer(file)
+        write = writer.write
 
         user_answers = [
                 user_answer.strip() for user_answer in answer.split(u'|')]
@@ -86,19 +76,16 @@ class WordQuestion(object):
                 for word in self.word_meaning.meaning.get_word_list()])
         expected_answer = self.word.value
 
-
         # Evaluates answer.
         for user_answer in user_answers:
             if user_answer in correct_answers:
                 # Informing user.
-                write(u'  Correct answer \"')
-                write(user_answer, 'green')
-                write(u'\". All meanings:\n')
+                write(u'  Correct answer \"{0}\". All meanings:\n',
+                      (user_answer, 'green'))
                 for word_meaning in correct_answers[
                         user_answer].meanings.values():
-                    write(u'    ')
-                    write(word_meaning.meaning.value, 'green')
-                    write(u'\n')
+                    write(u'    {0}\n',
+                          (word_meaning.meaning.value, 'green'))
                 # Changing state.
                 word = correct_answers[user_answer]
                 self.change_state(
@@ -107,35 +94,34 @@ class WordQuestion(object):
                         5, write)
             else:
                 # TODO: Search for word. Maybe mixed?
-                write(u'  Incorrect answer \"')
-                write(user_answer, 'red')
-                write(u'\".\n')
+                write(u'  Incorrect answer \"{0}\".\n',
+                      (user_answer, 'red'))
 
-        write(u'Expected answer was \"{0}\". '.format(expected_answer))
+        write(u'Expected answer was \"{0}\". ', expected_answer)
         if expected_answer in user_answers:
-            write(u'Correct.\n', 'green')
+            writer.write_string(u'Correct.\n', 'green')
         else:
             if not answer:
-                write(u'No answer.\n', 'red')
+                writer.write_string(u'No answer.\n', 'red')
                 self.change_state(self.word, self.word_meaning, 0, write)
             else:
-                write(u'Incorrect answer.\n', 'red')
+                writer.write_string(u'Incorrect answer.\n', 'red')
                 self.change_state(self.word, self.word_meaning, 1, write)
 
         # Shows additional information about word.
 
         if len(self.word.meanings) > 1:
-            write(u'Other meanings of \"{0}\":\n'.format(self.word.value))
+            write(u'Other meanings of \"{0}\":\n', self.word.value)
             for meaning in self.word.meanings:
                 if meaning != self.word_meaning.meaning.value:
-                    write(u'  {0}\n'.format(meaning), 'green')
+                    write(u'  {0}\n', (meaning, 'green'))
 
         if len(self.word_meaning.meaning.words) > 1:
-            write(u'Other words, which has meaning \"{0}\":\n'.format(
-                self.word_meaning.meaning.value))
+            write(u'Other words, which has meaning \"{0}\":\n',
+                  self.word_meaning.meaning.value)
             for word in self.word_meaning.meaning.words.values():
                 if not word is self.word:
-                    write(u'  {0}\n'.format(word.value), 'green')
+                    write(u'  {0}\n', (word.value, 'green'))
 
         write(u'\n')
 
