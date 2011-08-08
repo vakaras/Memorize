@@ -58,6 +58,14 @@ class WordMeaning(Memorizable):
         self.meaning = meaning
         self.comment = comment
 
+    def get_date_key(self):
+        """ Returns key for use in ``meanings_date`` dictionary.
+        """
+
+        return u' -*- '.join([
+            self.get_next_practice_unicode(),
+            self.meaning.value])
+
 
 class Word(TaggedObject):
     """ Generic word.
@@ -134,11 +142,7 @@ class Word(TaggedObject):
                                         # TODO: Add meaning comments.
 
                 self.meanings[translation] = word_meaning
-                self.meanings_date[
-                        u' -*- '.join([
-                            word_meaning.get_next_practice_unicode(),
-                            word_meaning.meaning
-                            ])
+                self.meanings_date[word_meaning.get_date_key()
                         ] = word_meaning
                 meaning.add_word(self)
                 log.debug(
