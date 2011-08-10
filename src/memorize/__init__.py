@@ -102,7 +102,7 @@ def main(argv=sys.argv[1:]):
             )
     parser.add_argument(
             u'command', choices=commands.keys(), default='lesson',
-            help=u'Command to execute.')
+            help=u'Command to execute.', nargs='?')
 
     args = parser.parse_args(argv)
 
