@@ -43,6 +43,9 @@ class WordQuestion(object):
                'green',))
         if self.word.comment:
             write(u'Word comment: {0}\n', self.word.comment)
+        words = len(self.word_meaning.meaning.get_word_list())
+        if words > 1:
+            write(u'{0} words have this meaning.\n', words)
         write(u'Word meaning: {0}\n',
               (self.word_meaning.meaning.value, 'green'))
         if self.word_meaning.comment:
