@@ -70,7 +70,7 @@ class TagTree(persistent.Persistent):
         else:
             obj.initialize(object_id, self)
             self._objects[object_id] = obj
-            self._counter = max(self._counter, object_id) + 1
+            self._counter = max(self._counter, object_id + 1)
 
     def unassign(self, obj):
         """ Unassigns object from tree.
