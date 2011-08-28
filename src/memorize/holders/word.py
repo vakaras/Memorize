@@ -256,10 +256,7 @@ class XMLWordParser(object):
                     u'{0}: \"{1}\" ({2})\n', (u'Adding', 'green'),
                     word.value, object_id)
 
-        try:
-            self.words[value].append(word)
-        except KeyError:
-            self.words[value] = [word]
+        self.words.setdefault(value, []).append(word)
 
     def finalize(self):
         """ This function is called, when all data is parsed.
