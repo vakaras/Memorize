@@ -114,10 +114,9 @@ class WordQuestion(object):
         # Shows additional information about word.
 
         if len(self.word.meanings) > 1:
-            write(u'Other meanings of \"{0}\":\n', self.word.value)
+            write(u'All meanings of \"{0}\":\n', self.word.value)
             for meaning in self.word.meanings:
-                if meaning != self.word_meaning.meaning.value:
-                    write(u'  {0}\n', (meaning, 'green'))
+                write(u'  {0}\n', (meaning, 'green'))
 
         if len(self.word_meaning.meaning.words) > 1:
             write(u'Other words, which has meaning \"{0}\":\n',
