@@ -45,7 +45,14 @@ class WordQuestion(object):
             write(u'Word comment: {0}\n', self.word.comment)
         words = len(self.word_meaning.meaning.get_word_list())
         if words > 1:
-            write(u'{0} words have this meaning.\n', words)
+            write(u'{0} words have this meaning. ', words)
+            different_words = len(set([
+                word.value
+                for word in self.word_meaning.meaning.get_word_list()]))
+            if different_words == words:
+                write(u'All of them are different.\n')
+            else:
+                write(u'{0} of them are different.\n', different_words)
         write(u'Word meaning: {0}\n',
               (self.word_meaning.meaning.value, 'green'))
         if self.word_meaning.comment:
@@ -74,9 +81,9 @@ class WordQuestion(object):
 
         user_answers = [
                 user_answer.strip() for user_answer in answer.split(u'|')]
-        correct_answers = dict([
-                (word.value, word)
-                for word in self.word_meaning.meaning.get_word_list()])
+        correct_answers = {}
+        for word in self.word_meaning.meaning.get_word_list():
+            correct_answers.setdefault(word.value, []).append(word)
         expected_answer = self.word.value
 
         # Evaluates answer.
@@ -85,10 +92,15 @@ class WordQuestion(object):
                 # Informing user.
                 write(u'  Correct answer \"{0}\". All meanings:\n',
                       (user_answer, 'green'))
-                for word_meaning in correct_answers[
-                        user_answer].meanings.values():
-                    write(u'    {0}\n',
-                          (word_meaning.meaning.value, 'green'))
+                for correct_answer in correct_answers[user_answer]:
+                    write(u'    ({0})\n',
+                          u' '.join([
+                              unicode(tag)
+                              for tag in correct_answer.get_tag_list()
+                              ]))
+                    for word_meaning in correct_answer.meanings.values():
+                        write(u'    {0}\n',
+                              (word_meaning.meaning.value, 'green'))
                 # Changing state.
                 word = correct_answers[user_answer]
                 self.change_state(
@@ -123,7 +135,12 @@ class WordQuestion(object):
                   self.word_meaning.meaning.value)
             for word in self.word_meaning.meaning.words.values():
                 if not word is self.word:
-                    write(u'  {0}\n', (word.value, 'green'))
+                    write(u'  {0} ({1})\n',
+                          (word.value, 'green'),
+                          u' '.join([
+                              unicode(tag)
+                              for tag in self.word.get_tag_list()
+                              ]))
 
         write(u'\n')
 
