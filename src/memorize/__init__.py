@@ -53,12 +53,16 @@ def give_lesson(config, args):
     manager.init_manipulators()
     questions = manager.collect_questions()
     if not questions:
-        sys.stdout.write(u'No questions.\n')
+        sys.stdout.write(u'No questions.\n'.encode('utf-8'))
     random.shuffle(questions)
 
     log.info(u'Lesson created.')
 
-    separator = u'-' * 60 + u'\n'
+    sys.stdout.write((
+        u'Qustions for today: {0}.\n'.format(len(questions))
+        ).encode('utf-8'))
+
+    separator = '-' * 60 + '\n'
     for question in questions:
         sys.stdout.write(separator)
         question.show(sys.stdout)
