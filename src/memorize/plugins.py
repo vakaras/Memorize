@@ -7,7 +7,7 @@
 
 
 class MountPoint(type):
-    """ Base class for plugin mount point.
+    """ Meta class for plugin mount point.
     """
 
     def __init__(cls, name, bases, attrs):
