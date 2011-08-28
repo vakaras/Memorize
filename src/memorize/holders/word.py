@@ -232,12 +232,12 @@ class XMLWordParser(object):
         for child in node:
             if child.tag == u'translation':
                 translations.append({
-                    u'translation': child.text,
+                    u'translation': unicode(child.text),
                     u'comment': unicode(child.get(u'comment', u'')),
                     })
             elif child.tag == u'part':
                 parts.append({
-                    u'child': child,
+                    u'child': unicode(child.text),
                     })
 
         tree = self.manager.get_tag_tree()
