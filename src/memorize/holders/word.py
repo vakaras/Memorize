@@ -156,7 +156,7 @@ class Word(TaggedObject):
                         ] = word_meaning
                 meaning.add_word(self)
                 log.debug(
-                        u'Word {0} ({1}) has meaning {2}',
+                        u'Word {0} ({1}) has meaning \"{2}\".',
                         self.value, self.get_id(),
                         word_meaning.meaning.value)
         else:
@@ -248,6 +248,7 @@ class XMLWordParser(object):
         except KeyError:
             word = Word(value, comment, parts, translations)
             tree.assign(word, object_id)
+            log.debug(u'TagTree counter: {0}.', tree._counter)
             for tag in tags:
                 word.add_tag(tag)
             self.words_list[object_id] = word
