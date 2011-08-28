@@ -31,7 +31,7 @@ def sync(config, args):
     log.info(u'Starting synchronization.')
 
     manager = ParsersManager(config)
-    for file in manager.collect():
+    for file in sorted(manager.collect()):
         manager.parse_file(file)
     manager.finalize()
 
