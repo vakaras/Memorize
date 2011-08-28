@@ -162,13 +162,13 @@ class WordManipulatorPlugin(ManipulatorPlugin):
             log.debug(u'Collected word: {0}', word.value)
             # TODO: Find out, what is better: to ask one meaning at a time
             # or all.
-            for meaning in word.meanings_date:
-                log.debug(meaning)
-            meaning = word.meanings_date.values()[0]
-            if meaning.get_next_practice().date() <= today:
-                self.questions.append(WordQuestion(
-                    self, word, meaning))
-
+            for date, meaning in word.meanings_date.items():
+                if meaning.get_next_practice().date() <= today:
+                    self.questions.append(WordQuestion(
+                        self, word, meaning))
+                    log.debug(u'Added meaning: {0}.', date)
+                else:
+                    break
 
     def get_questions(self):
         """ Returns list of ted questions.
