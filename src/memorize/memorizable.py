@@ -38,7 +38,8 @@ class Memorizable(persistent.Persistent):
         if rating > 3:
             # If practice was successful.
             self._successfully_practiced += 1
-        self._next_practice = get_now() + timedelta(days=delay_days)
+        self._next_practice = get_now() + timedelta(
+                days=min(delay_days, 365))
 
     def count_delay(self, times_practiced, rating, easy_factor):
         """ Calculates how many days to delay question.
