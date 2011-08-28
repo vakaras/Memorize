@@ -126,7 +126,7 @@ class WordQuestion(object):
                 write(u'  {0}\n', (meaning, 'green'))
 
         if len(self.word_meaning.meaning.words) > 1:
-            write(u'Other words, which has meaning \"{0}\":\n',
+            write(u'Other words, which have meaning \"{0}\":\n',
                   self.word_meaning.meaning.value)
             for word in self.word_meaning.meaning.words.values():
                 if not word is self.word:
