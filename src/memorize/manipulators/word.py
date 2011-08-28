@@ -101,12 +101,6 @@ class WordQuestion(object):
                     for word_meaning in correct_answer.meanings.values():
                         write(u'    {0}\n',
                               (word_meaning.meaning.value, 'green'))
-                # Changing state.
-                word = correct_answers[user_answer]
-                self.change_state(
-                        word,
-                        word.meanings[self.word_meaning.meaning.value],
-                        5, write)
             else:
                 # TODO: Search for word. Maybe mixed?
                 write(u'  Incorrect answer \"{0}\".\n',
@@ -115,6 +109,7 @@ class WordQuestion(object):
         write(u'Expected answer was \"{0}\". ', expected_answer)
         if expected_answer in user_answers:
             writer.write_string(u'Correct.\n', 'green')
+            self.change_state(self.word, self.word_meaning, 5, write)
         else:
             if not answer:
                 writer.write_string(u'No answer.\n', 'red')
