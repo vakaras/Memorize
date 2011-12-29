@@ -16,7 +16,10 @@ show-check:
 
 # Creating environment.
 
-bin/buildout:
+bootstrap.py:
+	wget http://svn.zope.org/*checkout*/zc.buildout/trunk/bootstrap/bootstrap.py
+
+bin/buildout: bootstrap.py
 	python2.7 bootstrap.py
 
 buildout: bin/buildout

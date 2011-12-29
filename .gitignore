@@ -2,6 +2,7 @@
 .mr.developer.cfg
 .coverage
 bin/memorize
+bootstrap.py
 bin/buildout
 bin/coverage
 bin/ctags
