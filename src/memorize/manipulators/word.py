@@ -72,6 +72,15 @@ class WordQuestion(object):
 
     def parse_answer(self, answer, file):
         """ Parses user answer and prints response.
+
+        .. todo::
+            Print all meanings of the word. (For example "scribe", can
+            be both noun and verb, so it is holded in two information
+            holders. But it would be better to print all its meanings
+            anyway.)
+
+        .. todo::
+            Show usage examples.
         """
 
         log.debug(u'Parsing user answer')

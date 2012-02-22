@@ -86,6 +86,17 @@ def main(argv=sys.argv[1:]):
 
     .. todo::
         Make all commands plugable.
+    .. todo::
+        Make command, which allows search between words. For example,
+        what is the meaning of "foster"?
+    .. todo::
+        Log start and end times of the lesson.
+    .. todo::
+        Log how many times were answered correctly in lesson.
+    .. todo::
+        If istead of answer get something like: "/query", then
+        do search between words with query. After the results
+        show question again.
     """
 
     commands = {
