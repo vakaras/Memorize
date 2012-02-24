@@ -6,12 +6,12 @@
 
 
 import os
-from glob import glob
 
 from lxml import etree
 
 from memorize.log import Logger
 from memorize.tag_tree import Tag
+from memorize import utils
 
 
 log = Logger('memorize.parsers')
@@ -58,9 +58,8 @@ class ParsersManager(object):
 
         files = []
         for directory in self.config.get_data_directories():
-            path = os.path.join(directory, u'*.mem')
-            log.debug(u'Searching files: \"{0}\".', path)
-            for file in glob(path):
+            log.debug(u'Searching files: \"{0}\".', directory)
+            for file in utils.find_files(directory, '*.mem'):
                 files.append(file)
         return files
 

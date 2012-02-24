@@ -5,6 +5,8 @@
 """
 
 
+import os
+import fnmatch
 from termcolor import colored
 
 
@@ -52,3 +54,13 @@ class Writer(object):
             self.file.write(colored(string, color))
         else:
             self.file.write(string)
+
+
+def find_files(directory, pattern):
+    """ Searches recursively for files matching pattern in directory.
+    """
+
+    for root, dirs, files in os.walk(directory):
+        for basename in files:
+            if fnmatch.fnmatch(basename, pattern):
+                yield os.path.join(root, basename)
