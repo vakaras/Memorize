@@ -81,3 +81,15 @@ class TagsListTest(unittest.TestCase):
         self.assertEqual(
                 list(u),
                 [Tag(u'a.b'), Tag(u'a.c'), Tag(u'a.b.c')])
+
+        u.append(u'a.g.e')
+        self.assertEqual(
+                [t.levels for t in u.tags],
+                [[u'a', u'b'], [u'a', u'c'], [u'a', u'b', u'c'],
+                    [u'a', u'g', u'e']])
+        self.assertEqual(u.as_unicode(), u'a.b a.c a.b.c a.g.e')
+        self.assertEqual(u.as_unicode(u':', u'|'), u'a|b:a|c:a|b|c:a|g|e')
+        self.assertEqual(unicode(u), u'a.b a.c a.b.c a.g.e')
+        self.assertEqual(
+                list(u),
+                [Tag(u'a.b'), Tag(u'a.c'), Tag(u'a.b.c'), Tag(u'a.g.e')])

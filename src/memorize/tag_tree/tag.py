@@ -165,3 +165,11 @@ class TagList(object):
         """
 
         return iter(self.tags)
+
+    def append(self, tag):
+        """ Appends tag.
+
+        :type tag: Unicode string or iterable of Unicode strings.
+        """
+
+        self.tags.append(Tag(tag))
