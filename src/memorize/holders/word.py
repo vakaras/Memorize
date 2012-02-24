@@ -127,9 +127,8 @@ class Word(TaggedObject):
             for info in parts:
                 for word in words[info[u'child']]:
                     log.debug(
-                            u'{0} ({1}) is part of {2} ({3}).',
-                            word.value, word.get_id(),
-                            self.value, self.get_id())
+                            u'{0} is part of {1}.',
+                            unicode(word), unicode(self))
                     self.parts[word.get_id()] = word
                     word.add_composed(self)
         else:
@@ -156,9 +155,8 @@ class Word(TaggedObject):
                         ] = word_meaning
                 meaning.add_word(self)
                 log.debug(
-                        u'Word {0} ({1}) has meaning \"{2}\".',
-                        self.value, self.get_id(),
-                        word_meaning.meaning.value)
+                        u'Word {0} has meaning \"{1}\".',
+                        unicode(self), word_meaning.meaning.value)
         else:
             # Updating.
             warnings.warn(u'Word updating is not implemented. Skipping.')
@@ -197,19 +195,27 @@ class Word(TaggedObject):
 
         self.meanings_date = None
 
+    def __unicode__(self):
+        return u'{0.value} {1}'.format(self, self.get_id())
+
 
 class XMLWordParser(object):
     """ Extracts information about Words.
     """
 
+    words = None
+    words_list = None
+    meanings = None
+
     def __init__(self, manager, persistent_data):
 
         self.manager = manager
-        self.words = {}
-        self.words_list = db.create_or_get(
-                persistent_data, u'words', IOBTree)
-        self.meanings = db.create_or_get(
-                persistent_data, u'meanings', OOBTree)
+        if XMLWordParser.words is None:
+            XMLWordParser.words = {}
+            XMLWordParser.words_list = db.create_or_get(
+                    persistent_data, u'words', IOBTree)
+            XMLWordParser.meanings = db.create_or_get(
+                    persistent_data, u'meanings', OOBTree)
 
         self.write = Writer().write
 
@@ -263,9 +269,12 @@ class XMLWordParser(object):
         """
         log.debug(u'Finalizing words: creating interlinks.')
 
+        linked = set()
         for words in self.words.values():
             for word in words:
-                word.create_links(self.words, self.meanings)
+                if word.get_id() not in linked:
+                    linked.add(word.get_id())
+                    word.create_links(self.words, self.meanings)
 
         objects = set(self.words_list) - self.manager.object_id_set
 
