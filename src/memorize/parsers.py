@@ -56,12 +56,16 @@ class ParsersManager(object):
 
         log.debug(u'Collecting data files.')
 
-        files = []
+        tag_files = []
+        data_files = []
         for directory in self.config.get_data_directories():
             log.debug(u'Searching files: \"{0}\".', directory)
-            for file in utils.find_files(directory, '*.mem'):
-                files.append(file)
-        return files
+            for file in utils.find_files(directory, u'*.mem'):
+                if file.endswith(u'tags.mem'):
+                    tag_files.append(file)
+                else:
+                    data_files.append(file)
+        return tag_files + data_files
 
     def mark_object_id(self, object_id):
         """ If object id is not used marks it as used. Otherwise raises
