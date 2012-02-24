@@ -126,6 +126,8 @@ class ContainerNodeParser(object):
         except KeyError:
             tags = u''
         for child in node:
+            if child.tag is etree.Comment:
+                continue
             keys = set(child.keys())
             for key, value in attributes.items():
                 if not key in keys:
