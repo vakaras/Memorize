@@ -63,13 +63,16 @@ def give_lesson(config, args):
         ).encode('utf-8'))
 
     separator = '-' * 60 + '\n'
-    for question in questions:
-        sys.stdout.write(separator)
-        question.show(sys.stdout)
-        answer = raw_input(u'Answer: ').decode('utf-8')
-        question.parse_answer(answer, sys.stdout)
-        transaction.commit()
-        log.info(u'Changes committed.')
+    try:
+        for question in questions:
+            sys.stdout.write(separator)
+            question.show(sys.stdout)
+            answer = raw_input(u'Answer: ').decode('utf-8')
+            question.parse_answer(answer, sys.stdout)
+            transaction.commit()
+            log.info(u'Changes committed.')
+    except (EOFError, KeyboardInterrupt):
+        sys.stdout.write("\nLesson canceled.\n")
 
     log.info(u'Lesson finished.')
 
