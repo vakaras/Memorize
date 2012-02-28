@@ -76,7 +76,8 @@ class WordMeaning(Memorizable):
 
         return u' -*- '.join([
             self.get_next_practice_unicode(),
-            self.meaning.value])
+            self.meaning.value,
+            unicode(id(self))])
 
 
 class Word(TaggedObject):
@@ -114,6 +115,11 @@ class Word(TaggedObject):
         self.parts = list(parts)
         self.meanings = list(translations)
 
+    def _create_word_meaning(self, *args, **kwargs):
+        """ Creates memorizable meaning object.
+        """
+        return WordMeaning(*args, **kwargs)
+
     def create_links(self, words, meanings):
         """
         This function is called, when all data is read from files, to
@@ -148,9 +154,11 @@ class Word(TaggedObject):
                     meaning = Meaning(translation)
                     meanings[translation] = meaning
 
-                word_meaning = WordMeaning(meaning, info[u'comment'])
+                word_meaning = self._create_word_meaning(
+                        meaning, info[u'comment'])
 
-                self.meanings[translation] = word_meaning
+                self.meanings.setdefault(
+                        translation, []).append(word_meaning)
                 self.meanings_date[word_meaning.get_date_key()
                         ] = word_meaning
                 meaning.add_word(self)
@@ -161,6 +169,12 @@ class Word(TaggedObject):
             # Updating.
             warnings.warn(u'Word updating is not implemented. Skipping.')
 
+    def get_meanings(self):
+        """ Meanings generator.
+        """
+        for word_meanings in self.meanings.values():
+            for word_meaning in word_meanings:
+                yield word_meaning
 
     def add_composed(self, word):
         """ Adds word, in which this word is part, to list.
@@ -189,8 +203,9 @@ class Word(TaggedObject):
             del self.parts[key]
         self.parts = None
 
-        for key, word_meaning in list(self.meanings.items()):
-            word_meaning.meaning.remove_word(self)
+        for key, word_meanings in list(self.meanings.items()):
+            for word_meaning in word_meanings:
+                word_meaning.meaning.remove_word(self)
             del self.meanings[key]
 
         self.meanings_date = None

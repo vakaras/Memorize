@@ -20,13 +20,13 @@ class WordQuestion(object):
     """ Question object for word.
     """
 
-    def __init__(self, manipulator, word, word_meaning):
+    def __init__(self, manipulator, word, word_meaning, old_date):
         log.debug(u'Constructing WordQuestion.')
 
         self.manipulator = manipulator
         self.word = word
         self.word_meaning = word_meaning
-
+        self.old_date = old_date
 
     def show(self, file):
         """ Prints question to file.
@@ -62,7 +62,7 @@ class WordQuestion(object):
         """ Changes state of ``word_meaning``.
         """
 
-        del word.meanings_date[word_meaning.get_date_key()]
+        del word.meanings_date[self.old_date]
         time = word_meaning.get_next_practice_unicode()
         word_meaning.plan(rating)
         word.meanings_date[word_meaning.get_date_key()] = word_meaning
@@ -107,7 +107,7 @@ class WordQuestion(object):
                               unicode(tag)
                               for tag in correct_answer.get_tag_list()
                               ]))
-                    for word_meaning in correct_answer.meanings.values():
+                    for word_meaning in correct_answer.get_meanings():
                         write(u'    {0}\n',
                               (word_meaning.meaning.value, 'green'))
             else:
@@ -174,7 +174,7 @@ class WordManipulatorPlugin(ManipulatorPlugin):
             for date, meaning in word.meanings_date.items():
                 if meaning.get_next_practice().date() <= today:
                     self.questions.append(WordQuestion(
-                        self, word, meaning))
+                        self, word, meaning, date))
                     log.debug(u'Added meaning: {0}.', date)
                 else:
                     break
