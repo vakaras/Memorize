@@ -138,7 +138,12 @@ class ConfigManager(object):
         """
 
         self.load_plugins()
-        self._manipulators = ManipulatorPlugin.plugins[:]
+        self._manipulators = []
+        for manipulator in ManipulatorPlugin.plugins:
+            if ('.'.join([manipulator.__module__, manipulator.__name__])
+                    in self._data['plugins']):
+                self._manipulators.append(manipulator)
+        #FIXME: Hack.
 
     def load_plugins(self):
         """ Loads plugins.
