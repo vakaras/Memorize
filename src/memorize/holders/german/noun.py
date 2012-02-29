@@ -5,12 +5,26 @@
 """
 
 
+import warnings
+
 from memorize.log import Logger
 from memorize.holders import word, InformationHolderPlugin
 from memorize.tag_tree import TagList
 
 
 log = Logger('memorize.holders.german.noun')
+
+
+class NounMeaning(word.WordMeaning):
+    """ The memorizable meaning of concrete noun.
+    """
+
+    def __init__(self, meaning, form, comment):
+        """
+        :type form: u'singular' or u'plural'.
+        """
+        super(NounMeaning, self).__init__(meaning, comment)
+        self.form = form
 
 
 class Noun(word.Word):
@@ -35,6 +49,24 @@ class Noun(word.Word):
 
     def __unicode__(self):
         return u'{0.singular} {0.plural} ({1})'.format(self, self.get_id())
+
+    def _add_word_meanings(self, meaning, info):
+        """ Adds word meanings.
+        """
+
+        word_meanings = []
+        if self.singular:
+            word_meanings.append(
+                    NounMeaning(meaning, u'singular', info[u'comment']))
+        if self.plural:
+            word_meanings.append(
+                    NounMeaning(meaning, u'plural', info[u'comment']))
+        for word_meaning in word_meanings:
+            self.meanings.setdefault(
+                    info[u'translation'], []).append(word_meaning)
+            self.meanings_date[word_meaning.get_date_key()
+                    ] = word_meaning
+        meaning.add_word(self)
 
 
 class XMLNounParser(word.XMLWordParser):

@@ -115,10 +115,20 @@ class Word(TaggedObject):
         self.parts = list(parts)
         self.meanings = list(translations)
 
-    def _create_word_meaning(self, *args, **kwargs):
-        """ Creates memorizable meaning object.
+    def _add_word_meanings(self, meaning, info):
+        """ Adds word meanings.
         """
-        return WordMeaning(*args, **kwargs)
+
+        word_meaning = WordMeaning(meaning, info[u'comment'])
+
+        self.meanings.setdefault(
+                info[u'translation'], []).append(word_meaning)
+        self.meanings_date[word_meaning.get_date_key()
+                ] = word_meaning
+        meaning.add_word(self)
+        log.debug(
+                u'Word {0} has meaning \"{1}\".',
+                unicode(self), word_meaning.meaning.value)
 
     def create_links(self, words, meanings):
         """
@@ -153,18 +163,7 @@ class Word(TaggedObject):
                 except KeyError:
                     meaning = Meaning(translation)
                     meanings[translation] = meaning
-
-                word_meaning = self._create_word_meaning(
-                        meaning, info[u'comment'])
-
-                self.meanings.setdefault(
-                        translation, []).append(word_meaning)
-                self.meanings_date[word_meaning.get_date_key()
-                        ] = word_meaning
-                meaning.add_word(self)
-                log.debug(
-                        u'Word {0} has meaning \"{1}\".',
-                        unicode(self), word_meaning.meaning.value)
+                self._add_word_meanings(meaning, info)
         else:
             # Updating.
             warnings.warn(u'Word updating is not implemented. Skipping.')
@@ -298,8 +297,8 @@ class XMLWordParser(object):
             for object_id in objects:
                 word = self.words_list[object_id]
                 self.write(
-                        u'{0}: \"{1}\" ({2})\n', (u'Deleting', 'red'),
-                        word.value, object_id)
+                        u'{0}: \"{1}\"\n', (u'Deleting', 'red'),
+                        word)
                 word.destroy()
                 tree.unassign(word)
                 del self.words_list[object_id]
