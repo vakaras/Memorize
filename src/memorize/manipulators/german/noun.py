@@ -56,7 +56,8 @@ class NounQuestion(word.WordQuestion):
               (self.word_meaning.meaning.value, 'green'))
         if self.word_meaning.comment:
             write(u'Meaning comment: {0}\n', self.word_meaning.comment)
-        write(u'Please enter {0} form.\n', self.word_meaning.form)
+        write(u'Please enter {0} form.\n',
+                (self.word_meaning.form, 'green'))
 
     def check_answer(self, user_answer, write):
         """ Checks if user answer is correct.
@@ -131,6 +132,12 @@ class NounQuestion(word.WordQuestion):
                               ]))
         write(u'\n')
 
+        if self.word.parts:
+            write(u'Parts:\n')
+            for word in self.word.parts.values():
+                write(u'  {0}\n', word)
+                for translation in word.meanings:
+                    write(u'    {0}\n', translation)
 
 
 class NounManipulatorPlugin(ManipulatorPlugin):
