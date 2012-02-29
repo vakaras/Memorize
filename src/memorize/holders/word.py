@@ -22,6 +22,16 @@ from memorize.tag_tree import TaggedObject, TagList
 log = Logger('memorize.holders.word')
 
 
+class Example(persistent.Persistent):
+    """ Example of word use.
+    """
+
+    def __init__(self, number, original, translation):
+        self.number = number
+        self.original = original
+        self.translation = translation
+
+
 class Meaning(persistent.Persistent):
     """ Class representing one meaninig of word.
 
@@ -59,7 +69,7 @@ class WordMeaning(Memorizable):
     """ The memorizable meaning of concrete word.
     """
 
-    def __init__(self, meaning, comment):
+    def __init__(self, meaning, comment, examples=()):
         """
         :type meaning: :py:class:`Meaning`
         :type comment: unicode
@@ -69,6 +79,7 @@ class WordMeaning(Memorizable):
 
         self.meaning = meaning
         self.comment = comment
+        self.examples = tuple(examples)
 
     def get_date_key(self):
         """ Returns key for use in ``meanings_date`` dictionary.
@@ -87,7 +98,8 @@ class Word(TaggedObject):
     can be used without modification.
     """
 
-    def __init__(self, value=None, comment=u'', parts=(), translations=()):
+    def __init__(self, value=None, comment=u'', parts=(), translations=(),
+            examples=()):
         """
 
         :param value: The word itself.
@@ -96,6 +108,7 @@ class Word(TaggedObject):
             Other words, from which this is composed. (For example,
             Kinderzimmer is composed from Kind and Zimmer.)
         :type parts: iterable of :py:class:`words <Word>`
+        :type examples: iterable of Example
 
         .. note::
             If ``value`` is not passed to constructor, that attribute is
@@ -114,12 +127,16 @@ class Word(TaggedObject):
         self.part_of = IOBTree()
         self.parts = list(parts)
         self.meanings = list(translations)
+        self.examples = IOBTree()
+        for example in examples:
+            self.examples[example.number] = example
 
     def _add_word_meanings(self, meaning, info):
         """ Adds word meanings.
         """
 
-        word_meaning = WordMeaning(meaning, info[u'comment'])
+        word_meaning = WordMeaning(
+                meaning, info[u'comment'], info['examples'])
 
         self.meanings.setdefault(
                 info[u'translation'], []).append(word_meaning)
@@ -249,16 +266,25 @@ class XMLWordParser(object):
 
         translations = []
         parts = []
+        examples = []
         for child in node:
             if child.tag == u'translation':
                 translations.append({
                     u'translation': unicode(child.text),
                     u'comment': unicode(child.get(u'comment', u'')),
+                    u'examples': [
+                        int(nr)
+                        for nr in child.get(u'examples', u'').split()],
                     })
             elif child.tag == u'part':
                 parts.append({
                     u'child': unicode(child.text),
                     })
+            elif child.tag == u'example':
+                examples.append(Example(
+                    int(child.attrib[u'nr']),
+                    unicode(child.attrib[u'org']),
+                    unicode(child.attrib[u'tr'])))
 
         tree = self.manager.get_tag_tree()
 
@@ -266,7 +292,7 @@ class XMLWordParser(object):
             word = tree.get_object(object_id)
             warnings.warn(u'Word updating is not implemented. Skipping.')
         except KeyError:
-            word = Word(value, comment, parts, translations)
+            word = Word(value, comment, parts, translations, examples)
             tree.assign(word, object_id)
             log.debug(u'TagTree counter: {0}.', tree._counter)
             for tag in tags:

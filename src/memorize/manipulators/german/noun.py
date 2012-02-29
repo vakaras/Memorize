@@ -43,12 +43,14 @@ class NounQuestion(word.WordQuestion):
         write = Writer(file).write
 
         write(u'Asking for german noun.\n')
-        write(u'Tags assigned to word: {0}\n',
-              (u' '.join([
-                  unicode(tag) for tag in self.word.get_tag_list()]),
-               'green',))
         if self.word.comment:
             write(u'Word comment: {0}\n', self.word.comment)
+        if self.word_meaning.examples:
+            write(u'Examples:\n')
+            for nr in self.word_meaning.examples:
+                write(
+                        u'  {0.number}. {0.translation}\n',
+                        self.word.examples[nr])
         words = len(self.word_meaning.meaning.get_word_list())
         if words > 1:
             write(u'{0} words have this meaning. ', words)
@@ -118,6 +120,10 @@ class NounQuestion(word.WordQuestion):
             write(u'All meanings of \"{0}\":\n', unicode(self.word))
             for translation in self.word.meanings:
                 write(u'  {0}\n', (translation, 'green'))
+        write(u'Tags assigned to word: {0}\n',
+              (u' '.join([
+                  unicode(tag) for tag in self.word.get_tag_list()]),
+               'green',))
 
         if len(self.word_meaning.meaning.words) > 1:
             write(u'Other words, which have meaning \"{0}\":\n',
@@ -138,6 +144,13 @@ class NounQuestion(word.WordQuestion):
                 write(u'  {0}\n', word)
                 for translation in word.meanings:
                     write(u'    {0}\n', translation)
+        if self.word_meaning.examples:
+            write(u'Examples:\n')
+            for nr in self.word_meaning.examples:
+                write(
+                        (u'  {0.number}. {0.translation}\n'
+                        u'     {0.original}\n'),
+                        self.word.examples[nr])
 
 
 class NounManipulatorPlugin(ManipulatorPlugin):

@@ -57,6 +57,12 @@ class WordQuestion(object):
               (self.word_meaning.meaning.value, 'green'))
         if self.word_meaning.comment:
             write(u'Meaning comment: {0}\n', self.word_meaning.comment)
+        if self.word_meaning.examples:
+            write(u'Examples:\n')
+            for nr in self.word_meaning.examples:
+                write(
+                        u'  {0.number}. {0.translation}\n',
+                        self.word.examples[nr])
 
     def change_state(self, word, word_meaning, rating, write):
         """ Changes state of ``word_meaning``.
@@ -147,6 +153,13 @@ class WordQuestion(object):
                               ]))
 
         write(u'\n')
+        if self.word_meaning.examples:
+            write(u'Examples:\n')
+            for nr in self.word_meaning.examples:
+                write(
+                        (u'  {0.number}. {0.translation}\n'
+                        u'     {0.original}\n'),
+                        self.word.examples[nr])
 
 
 class WordManipulatorPlugin(ManipulatorPlugin):

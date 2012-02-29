@@ -19,11 +19,11 @@ class NounMeaning(word.WordMeaning):
     """ The memorizable meaning of concrete noun.
     """
 
-    def __init__(self, meaning, form, comment):
+    def __init__(self, meaning, form, comment, examples):
         """
         :type form: u'singular' or u'plural'.
         """
-        super(NounMeaning, self).__init__(meaning, comment)
+        super(NounMeaning, self).__init__(meaning, comment, examples)
         self.form = form
 
 
@@ -57,10 +57,14 @@ class Noun(word.Word):
         word_meanings = []
         if self.singular and info[u'gender'] in (u'singular', u'both'):
             word_meanings.append(
-                    NounMeaning(meaning, u'singular', info[u'comment']))
+                    NounMeaning(
+                        meaning, u'singular', info[u'comment'],
+                        info['examples']))
         if self.plural and info[u'gender'] in (u'plural', u'both'):
             word_meanings.append(
-                    NounMeaning(meaning, u'plural', info[u'comment']))
+                    NounMeaning(
+                        meaning, u'plural', info[u'comment'],
+                        info['examples']))
         for word_meaning in word_meanings:
             self.meanings.setdefault(
                     info[u'translation'], []).append(word_meaning)
@@ -97,18 +101,26 @@ class XMLNounParser(word.XMLWordParser):
 
         translations = []
         parts = []
+        examples = []
         for child in node:
             if child.tag == u'translation':
                 translations.append({
                     u'translation': unicode(child.get(u'value')),
                     u'comment': unicode(child.get(u'comment', u'')),
                     u'gender': unicode(child.get(u'gender', u'both')),
-                    # TODO: Add example tag.
+                    u'examples': [
+                        int(nr)
+                        for nr in child.get(u'example', u'').split()],
                     })
             elif child.tag == u'part':
                 parts.append({
                     u'child': unicode(child.get(u'value', u'')),
                     })
+            elif child.tag == u'example':
+                examples.append(word.Example(
+                    int(child.attrib[u'nr']),
+                    unicode(child.attrib[u'org']),
+                    unicode(child.attrib[u'tr'])))
 
         tree = self.manager.get_tag_tree()
 
@@ -116,7 +128,9 @@ class XMLNounParser(word.XMLWordParser):
             noun = tree.get_object(object_id)
             warnings.warn(u'Word updating is not implemented. Skipping.')
         except KeyError:
-            noun = Noun(singular, plural, comment, parts, translations)
+            noun = Noun(
+                    singular, plural, comment, parts, translations,
+                    examples)
             tree.assign(noun, object_id)
             log.debug(u'TagTree counter: {0}.', tree._counter)
             for tag in tags:
