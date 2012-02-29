@@ -55,10 +55,10 @@ class Noun(word.Word):
         """
 
         word_meanings = []
-        if self.singular:
+        if self.singular and info[u'gender'] in (u'singular', u'both'):
             word_meanings.append(
                     NounMeaning(meaning, u'singular', info[u'comment']))
-        if self.plural:
+        if self.plural and info[u'gender'] in (u'plural', u'both'):
             word_meanings.append(
                     NounMeaning(meaning, u'plural', info[u'comment']))
         for word_meaning in word_meanings:
@@ -102,7 +102,7 @@ class XMLNounParser(word.XMLWordParser):
                 translations.append({
                     u'translation': unicode(child.get(u'value')),
                     u'comment': unicode(child.get(u'comment', u'')),
-                    # TODO: Add translation tag.
+                    u'gender': unicode(child.get(u'gender', u'both')),
                     # TODO: Add example tag.
                     })
             elif child.tag == u'part':
