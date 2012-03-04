@@ -123,3 +123,9 @@ class TaggedObject(persistent.Persistent):
         """
 
         return [Tag(tag) for tag in self._tags.keys()]
+
+    @property
+    def tag_tree(self):
+        """ Getter for tag tree.
+        """
+        return self._tag_tree
