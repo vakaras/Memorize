@@ -52,15 +52,19 @@ class TagTree(persistent.Persistent):
             node = node.get_child_node(level)
         parent.delete_child_node(level)
 
-    def assign(self, obj, object_id=None):
+    def assign(self, obj, object_id=None, id_lower_bound=None):
         """ Assigns object to tree.
 
-        If object_id is not given, then generates an unique one.
+        If ``object_id`` is not given, then generates an unique one. If
+        ``id_lower_bound`` is given, then generated id is not smaller
+        than ``id_lower_bound``.
         """
 
         object_id = int(object_id) if object_id is not None else None
 
         if object_id is None:
+            if id_lower_bound is not None:
+                self._counter = max(self._counter, id_lower_bound)
             obj.initialize(self._counter, self)
             self._objects[self._counter] = obj
             self._counter += 1
