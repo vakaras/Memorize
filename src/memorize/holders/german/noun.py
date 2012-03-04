@@ -9,7 +9,7 @@ import warnings
 
 from memorize.log import Logger
 from memorize.holders import word, InformationHolderPlugin
-from memorize.tag_tree import TagList
+from memorize.tag_tree import TagList, Tag
 
 
 log = Logger('memorize.holders.german.noun')
@@ -19,12 +19,11 @@ class NounMeaning(word.WordMeaning):
     """ The memorizable meaning of concrete noun.
     """
 
-    def __init__(self, meaning, form, comment, examples):
+    def __init__(self, meaning, comment, examples):
         """
         :type form: u'singular' or u'plural'.
         """
         super(NounMeaning, self).__init__(meaning, comment, examples)
-        self.form = form
 
 
 class Noun(word.Word):
@@ -56,20 +55,22 @@ class Noun(word.Word):
 
         word_meanings = []
         if self.singular and info[u'gender'] in (u'singular', u'both'):
-            word_meanings.append(
-                    NounMeaning(
-                        meaning, u'singular', info[u'comment'],
-                        info['examples']))
+            word_meanings.append((
+                NounMeaning(meaning, info[u'comment'], info['examples']),
+                Tag(u'word.noun.meaning.singular'),
+                ))
         if self.plural and info[u'gender'] in (u'plural', u'both'):
-            word_meanings.append(
-                    NounMeaning(
-                        meaning, u'plural', info[u'comment'],
-                        info['examples']))
-        for word_meaning in word_meanings:
+            word_meanings.append((
+                NounMeaning(meaning, info[u'comment'], info['examples']),
+                Tag(u'word.noun.meaning.plural'),
+                ))
+        for word_meaning, tag in word_meanings:
             self.meanings.setdefault(
                     info[u'translation'], []).append(word_meaning)
             self.meanings_date[word_meaning.get_date_key()
                     ] = word_meaning
+            self.tag_tree.assign(word_meaning, id_lower_bound=100000)
+            word_meaning.add_tag(tag)
         meaning.add_word(self)
 
 

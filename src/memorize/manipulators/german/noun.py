@@ -58,17 +58,23 @@ class NounQuestion(word.WordQuestion):
               (self.word_meaning.meaning.value, 'green'))
         if self.word_meaning.comment:
             write(u'Meaning comment: {0}\n', self.word_meaning.comment)
-        write(u'Please enter {0} form.\n',
-                (self.word_meaning.form, 'green'))
+        write(u'Word meaning tags: {0}.\n',
+                (u' '.join([
+                    unicode(tag)
+                    for tag in self.word_meaning.get_tag_list()
+                    ]),
+                    'green'))
 
     def check_answer(self, user_answer, write):
         """ Checks if user answer is correct.
         """
         correct = False
         for noun in self.word_meaning.meaning.get_word_list():
-            if ((self.word_meaning.form == u'singular' and
+            if ((self.word_meaning.has_tag(
+                Tag(u'word.noun.meaning.singular')) and
                     nominative(noun) == user_answer) or
-                (self.word_meaning.form == u'plural' and
+                (self.word_meaning.has_tag(
+                    Tag(u'word.noun.meaning.plural')) and
                     noun.plural == user_answer)):
                 write(u'  Correct answer \"{0}\". All meanings:\n',
                       (user_answer, 'green'))
@@ -99,7 +105,7 @@ class NounQuestion(word.WordQuestion):
                 user_answer.strip() for user_answer in answer.split(u'|')]
         for user_answer in user_answers:
             self.check_answer(user_answer, write)
-        if self.word_meaning.form == u'singular':
+        if self.word_meaning.has_tag(Tag(u'word.noun.meaning.singular')):
             expected_answer = nominative(self.word)
         else:
             expected_answer = self.word.plural
@@ -165,7 +171,11 @@ class NounManipulatorPlugin(ManipulatorPlugin):
 
         # Collects words.
         self.words = self.plugin_manager.tag_tree.get_objects(
-                TagList(u'word.noun'))
+                TagList(
+                    u'word.noun.feminine',
+                    u'word.noun.masculine',
+                    u'word.noun.neuter',
+                    ))
 
         # FIXME: Wet code.
         # Creates questions.
