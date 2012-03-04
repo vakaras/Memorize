@@ -9,6 +9,8 @@ from random import randrange
 
 import persistent
 
+from memorize.tag_tree import TaggedObject
+
 
 def get_now():
     """ Returns time of the moment + some random delta < 1 hour.
@@ -17,11 +19,12 @@ def get_now():
     return datetime.now() + timedelta(seconds=randrange(3600))
 
 
-class Memorizable(persistent.Persistent):
+class Memorizable(TaggedObject):
     """ Base class for memorizable information.
     """
 
     def __init__(self):
+        super(Memorizable, self).__init__()
         self._successfully_practiced = 1
         self._easy_factor = 2.5
         self._next_practice = get_now()
