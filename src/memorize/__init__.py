@@ -59,7 +59,7 @@ def give_lesson(config, args):
     log.info(u'Lesson created.')
 
     sys.stdout.write((
-        u'Qustions for today: {0}.\n'.format(len(questions))
+        u'Questions for today: {0}.\n'.format(len(questions))
         ).encode('utf-8'))
 
     separator = '-' * 60 + '\n'
