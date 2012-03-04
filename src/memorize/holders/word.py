@@ -16,7 +16,7 @@ from memorize.utils import Writer
 from memorize import db
 from memorize.memorizable import Memorizable
 from memorize.holders import InformationHolderPlugin
-from memorize.tag_tree import TaggedObject, TagList
+from memorize.tag_tree import TaggedObject, TagList, Tag
 
 
 log = Logger('memorize.holders.word')
@@ -142,6 +142,8 @@ class Word(TaggedObject):
                 info[u'translation'], []).append(word_meaning)
         self.meanings_date[word_meaning.get_date_key()
                 ] = word_meaning
+        self.tag_tree.assign(word_meaning, id_lower_bound=100000)
+        word_meaning.add_tag(Tag(u'word.meaning'))
         meaning.add_word(self)
         log.debug(
                 u'Word {0} has meaning \"{1}\".',
