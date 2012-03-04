@@ -69,15 +69,17 @@ class WordMeaning(Memorizable):
     """ The memorizable meaning of concrete word.
     """
 
-    def __init__(self, meaning, comment, examples=()):
+    def __init__(self, word, meaning, comment, examples=()):
         """
         :type meaning: :py:class:`Meaning`
+        :type meaning: :py:class:`Word`
         :type comment: unicode
         """
 
         super(WordMeaning, self).__init__()
 
         self.meaning = meaning
+        self.word = word
         self.comment = comment
         self.examples = tuple(examples)
 
@@ -136,7 +138,7 @@ class Word(TaggedObject):
         """
 
         word_meaning = WordMeaning(
-                meaning, info[u'comment'], info['examples'])
+                self, meaning, info[u'comment'], info['examples'])
 
         self.meanings.setdefault(
                 info[u'translation'], []).append(word_meaning)

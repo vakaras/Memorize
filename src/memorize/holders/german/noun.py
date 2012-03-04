@@ -19,11 +19,11 @@ class NounMeaning(word.WordMeaning):
     """ The memorizable meaning of concrete noun.
     """
 
-    def __init__(self, meaning, comment, examples):
+    def __init__(self, word, meaning, comment, examples):
         """
         :type form: u'singular' or u'plural'.
         """
-        super(NounMeaning, self).__init__(meaning, comment, examples)
+        super(NounMeaning, self).__init__(word, meaning, comment, examples)
 
 
 class Noun(word.Word):
@@ -56,12 +56,14 @@ class Noun(word.Word):
         word_meanings = []
         if self.singular and info[u'gender'] in (u'singular', u'both'):
             word_meanings.append((
-                NounMeaning(meaning, info[u'comment'], info['examples']),
+                NounMeaning(
+                    self, meaning, info[u'comment'], info['examples']),
                 Tag(u'word.noun.meaning.singular'),
                 ))
         if self.plural and info[u'gender'] in (u'plural', u'both'):
             word_meanings.append((
-                NounMeaning(meaning, info[u'comment'], info['examples']),
+                NounMeaning(
+                    self, meaning, info[u'comment'], info['examples']),
                 Tag(u'word.noun.meaning.plural'),
                 ))
         for word_meaning, tag in word_meanings:
