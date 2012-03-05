@@ -138,7 +138,7 @@ class Word(TaggedObject):
         """
 
         word_meaning = WordMeaning(
-                self, meaning, info[u'comment'], info['examples'])
+                self, meaning, info[u'comment'], info[u'examples'])
 
         self.meanings.setdefault(
                 info[u'translation'], []).append(word_meaning)
