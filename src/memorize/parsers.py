@@ -12,6 +12,7 @@ from lxml import etree
 from memorize.log import Logger
 from memorize.tag_tree import Tag
 from memorize import utils
+from memorize.tag_tree.exceptions import IntegrityError
 
 
 log = Logger('memorize.parsers')
