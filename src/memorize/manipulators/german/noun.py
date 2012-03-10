@@ -170,12 +170,15 @@ class NounManipulatorPlugin(ManipulatorPlugin):
         self.plugin_manager = plugin_manager
 
         # Collects words.
-        self.words = self.plugin_manager.tag_tree.get_objects(
-                TagList(
-                    u'word.noun.feminine',
-                    u'word.noun.masculine',
-                    u'word.noun.neuter',
-                    ))
+        tags = (
+                u'word.noun.feminine',
+                u'word.noun.masculine',
+                u'word.noun.neuter',)
+        self.words = []
+        for tag in tags:
+            self.words.extend(
+                    self.plugin_manager.tag_tree.get_objects(
+                        TagList((tag,))))
 
         # FIXME: Wet code.
         # Creates questions.
