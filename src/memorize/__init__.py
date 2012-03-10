@@ -88,8 +88,10 @@ def get_free_id(config, args):
 def show_words(config, args):
     """ Prints all words.
     """
-    for word in config.tag_tree.get_objects(TagList((u'word',))):
-        print unicode(word).encode('utf-8')
+    tags = TagList((u'word',))
+    for word in config.tag_tree.get_objects(tags):
+        print unicode(word).encode('utf-8'),
+        print unicode(TagList(word.get_tag_list())).encode('utf-8')
 
 
 def show_meanings(config, args):
