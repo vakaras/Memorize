@@ -46,6 +46,9 @@ class Meaning(persistent.Persistent):
         self.value = value
         self.words = IOBTree()
 
+    def __unicode__(self):
+        return u'Meaning: {0.value}'.format(self)
+
     def add_word(self, word):
         """ Appends word to words, which have the same meaning, list.
         """

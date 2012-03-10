@@ -25,6 +25,10 @@ class NounMeaning(word.WordMeaning):
         """
         super(NounMeaning, self).__init__(word, meaning, comment, examples)
 
+    def __unicode__(self):
+        return u'NounMeaning {1}: {0.word} {0.meaning}'.format(
+                self, self.get_id())
+
 
 class Noun(word.Word):
     """ German noun.

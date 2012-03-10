@@ -22,6 +22,10 @@ class VerbMeaning(word.WordMeaning):
     """ The memorizable meaning of concrete verb.
     """
 
+    def __unicode__(self):
+        return u'VerbMeaning {1}: {0.word} {0.meaning}'.format(
+                self, self.get_id())
+
 
 class ConjugationForm(Memorizable):
     """ The memorizable verb form.
@@ -44,7 +48,7 @@ class Verb(word.Word):
 
     def __unicode__(self):
         if self.prefix:
-            return u'{0.prefix} {0.infinitive} ({1})'.format(
+            return u'{0.prefix}{0.infinitive} ({1})'.format(
                     self, self.get_id())
         else:
             return u'{0.infinitive} ({1})'.format(self, self.get_id())
