@@ -119,7 +119,7 @@ class VerbQuestion(word.WordQuestion):
             for word in self.word_meaning.meaning.words.values():
                 if not word is self.word:
                     write(u'  {0} ({1})\n',
-                          (word, 'green'),
+                          (unicode(word), 'green'),
                           u' '.join([
                               unicode(tag)
                               for tag in self.word.get_tag_list()
