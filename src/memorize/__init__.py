@@ -16,6 +16,7 @@ from memorize.log import Logger
 from memorize.config import ConfigManager
 from memorize.parsers import ParsersManager
 from memorize.manipulators import ManipulatorsManager
+from memorize.tag_tree import TagList
 
 
 log = Logger('memorize', root=True)
@@ -84,6 +85,23 @@ def get_free_id(config, args):
     print config.tag_tree._counter
 
 
+def show_words(config, args):
+    """ Prints all words.
+    """
+    for word in config.tag_tree.get_objects(TagList((u'word',))):
+        print unicode(word).encode('utf-8')
+
+
+def show_meanings(config, args):
+    """ Prints all meanings.
+    """
+    meanings = config.db_root[u'parsers_data']['word']['meanings']
+    for meaning in meanings.values():
+        print unicode(meaning).encode('utf-8')
+        for word_id, word in meaning.words.items():
+            print u'  {0} {1}'.format(word_id, word).encode('utf-8')
+
+
 def main(argv=sys.argv[1:]):
     """ Main entry point.
 
@@ -106,6 +124,8 @@ def main(argv=sys.argv[1:]):
             'sync': sync,
             'lesson': give_lesson,
             'getid': get_free_id,
+            'show': show_words,
+            'show_meanings': show_meanings,
             }
 
     parser = argparse.ArgumentParser(description=__doc__)
