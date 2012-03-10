@@ -152,11 +152,14 @@ class VerbManipulatorPlugin(ManipulatorPlugin):
         self.plugin_manager = plugin_manager
 
         # Collects words.
-        self.words = self.plugin_manager.tag_tree.get_objects(
-                TagList(
-                    u'word.verb.transitive',
-                    u'word.verb.intransitive',
-                    ))
+        tags = (
+                u'word.verb.transitive',
+                u'word.verb.intransitive',)
+        self.words = []
+        for tag in tags:
+            self.words.extend(
+                    self.plugin_manager.tag_tree.get_objects(
+                        TagList((tag,))))
 
         # FIXME: Wet code.
         # Creates questions.
