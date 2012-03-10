@@ -227,9 +227,10 @@ class Word(TaggedObject):
         self.parts = None
 
         for key, word_meanings in list(self.meanings.items()):
-            meanings = set(
-                    word_meaning.meaning
-                    for word_meaning in word_meanings)
+            meanings = set()
+            for word_meaning in word_meanings:
+                self.tag_tree.unassign(word_meaning)
+                meanings.add(word_meaning.meaning)
             for meaning in meanings:
                 meaning.remove_word(self)
             del self.meanings[key]
