@@ -19,12 +19,6 @@ class NounMeaning(word.WordMeaning):
     """ The memorizable meaning of concrete noun.
     """
 
-    def __init__(self, word, meaning, comment, examples):
-        """
-        :type form: u'singular' or u'plural'.
-        """
-        super(NounMeaning, self).__init__(word, meaning, comment, examples)
-
     def __unicode__(self):
         return u'NounMeaning {1}: {0.word} {0.meaning}'.format(
                 self, self.get_id())
