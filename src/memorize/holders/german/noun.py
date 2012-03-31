@@ -56,21 +56,26 @@ class Noun(word.Word):
             word_meanings.append((
                 NounMeaning(
                     self, meaning, info[u'comment'], info['examples']),
-                Tag(u'word.noun.meaning.singular'),
+                TagList((
+                    u'word.noun.meaning.singular',
+                    u'word.noun.meaning.{0}'.format(info[u'gender']))),
                 ))
         if self.plural and info[u'number'] in (u'plural', u'both'):
             word_meanings.append((
                 NounMeaning(
                     self, meaning, info[u'comment'], info['examples']),
-                Tag(u'word.noun.meaning.plural'),
+                TagList((
+                    u'word.noun.meaning.plural',
+                    u'word.noun.meaning.{0}'.format(info[u'gender']))),
                 ))
-        for word_meaning, tag in word_meanings:
+        for word_meaning, tags in word_meanings:
             self.meanings.setdefault(
                     info[u'translation'], []).append(word_meaning)
             self.meanings_date[word_meaning.get_date_key()
                     ] = word_meaning
             self.tag_tree.assign(word_meaning, id_lower_bound=100000)
-            word_meaning.add_tag(tag)
+            for tag in tags:
+                word_meaning.add_tag(tag)
         meaning.add_word(self)
 
 
@@ -85,8 +90,8 @@ class XMLNounParser(word.XMLWordParser):
         object_id = int(node.get(u'id'))
         self.manager.mark_object_id(object_id)
 
-        gender = unicode(node.get(u'gender', '')).strip()
-        if not gender:
+        genders = unicode(node.get(u'gender', '')).strip().split()
+        if not genders:
             raise Exception(u'German noun gender must be specified.')
         singular = unicode(node.get(u'singular', '')).strip() or None
         plural = unicode(node.get(u'plural', '')).strip() or None
@@ -97,7 +102,8 @@ class XMLNounParser(word.XMLWordParser):
 
         tags = TagList(unicode(node.get(u'tags', u'')))
         tags.append(u'word.noun')
-        tags.append([u'word', u'noun', gender])
+        for gender in genders:
+            tags.append([u'word', u'noun', gender])
         comment = unicode(node.get(u'comment', u''))
 
         translations = []
@@ -105,10 +111,25 @@ class XMLNounParser(word.XMLWordParser):
         examples = []
         for child in node:
             if child.tag == u'translation':
+                if len(genders) == 1:
+                    if 'gender' in child.attrib:
+                        raise Exception(
+                                u'Noun with one gender can\'t have '
+                                u'translation with gender specified.')
+                    else:
+                        gender = genders[0]
+                else:
+                    gender = child.attrib['gender']
+                    if gender not in genders:
+                        raise Exception(
+                                u'Translation gender can\'t differ '
+                                u'from noun gender.'
+                                )
                 translations.append({
                     u'translation': unicode(child.get(u'value')),
                     u'comment': unicode(child.get(u'comment', u'')),
                     u'number': unicode(child.get(u'number', u'both')),
+                    u'gender': gender,
                     u'examples': [
                         int(nr)
                         for nr in child.get(u'example', u'').split()],

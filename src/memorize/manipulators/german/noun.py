@@ -17,22 +17,41 @@ from memorize.manipulators import word
 log = Logger('memorize.manipulators.german.noun')
 
 
-def nominative(noun):
+def nominative(noun, word_meaning=None):
     """ Forms nominative singular form of noun.
     """
-    if noun.has_tag(Tag(u'word.noun.feminine')):
-        return u'die ' + noun.singular
-    elif noun.has_tag(Tag(u'word.noun.masculine')):
-        return u'der ' + noun.singular
-    elif noun.has_tag(Tag(u'word.noun.neuter')):
-        return u'das ' + noun.singular
+
+    if word_meaning is None:
+        tagged_object = noun
+        tag_template = u'word.noun.{0}'
     else:
-        raise Exception(u'Unknown noun gender.')
+        tagged_object = word_meaning
+        tag_template = u'word.noun.meaning.{0}'
+
+    articles = {
+            u'feminine': u'die',
+            u'masculine': u'der',
+            u'neuter': u'das',
+            }
+
+    for gender, article in articles.items():
+        if tagged_object.has_tag(Tag(tag_template.format(gender))):
+            return u'{0} {1}'.format(article, noun.singular)
+    else:
+        raise Exception(u'Unknown noun gender. Tags: {0}.'.format(
+            u' '.join(
+                unicode(tag) for tag in tagged_object.get_tag_list())))
 
 
 class NounQuestion(word.WordQuestion):
     """ Question object for noun.
     """
+
+    BLACKLISTED_TAGS = (
+            u'word.noun.meaning.feminine',
+            u'word.noun.meaning.masculine',
+            u'word.noun.meaning.neuter',
+            )
 
     def show(self, file):
         """ Prints question to file.
@@ -62,6 +81,7 @@ class NounQuestion(word.WordQuestion):
                 (u' '.join([
                     unicode(tag)
                     for tag in self.word_meaning.get_tag_list()
+                    if unicode(tag) not in self.BLACKLISTED_TAGS
                     ]),
                     'green'))
 
@@ -106,7 +126,7 @@ class NounQuestion(word.WordQuestion):
         for user_answer in user_answers:
             self.check_answer(user_answer, write)
         if self.word_meaning.has_tag(Tag(u'word.noun.meaning.singular')):
-            expected_answer = nominative(self.word)
+            expected_answer = nominative(self.word, self.word_meaning)
         else:
             expected_answer = self.word.plural
 
@@ -130,6 +150,12 @@ class NounQuestion(word.WordQuestion):
               (u' '.join([
                   unicode(tag) for tag in self.word.get_tag_list()]),
                'green',))
+        write(u'Word meaning tags: {0}.\n',
+                (u' '.join([
+                    unicode(tag)
+                    for tag in self.word_meaning.get_tag_list()
+                    ]),
+                    'green'))
 
         if len(self.word_meaning.meaning.words) > 1:
             write(u'Other words, which have meaning \"{0}\":\n',
@@ -174,9 +200,9 @@ class NounManipulatorPlugin(ManipulatorPlugin):
                 u'word.noun.feminine',
                 u'word.noun.masculine',
                 u'word.noun.neuter',)
-        self.words = []
+        self.words = set()
         for tag in tags:
-            self.words.extend(
+            self.words.update(
                     self.plugin_manager.tag_tree.get_objects(
                         TagList((tag,))))
 
