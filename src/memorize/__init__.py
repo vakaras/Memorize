@@ -55,6 +55,28 @@ def update_db(config, args):
             else:
                 raise Exception(u'Gender is not specified for {0}'.format(
                     word))
+    del noun_meaning
+
+    log.info(u'Tagging VerbMeaning with transitiveness.')
+    t_tag = Tag(u'word.verb.meaning.transitive')
+    i_tag = Tag(u'word.verb.meaning.intransitive')
+    for verb_meaning in config.tag_tree.get_objects(
+            TagList(u'word.verb.meaning')):
+        if (verb_meaning.has_tag(t_tag) or
+            verb_meaning.has_tag(i_tag)):
+            log.debug(u'Already tagged {0}.', verb_meaning)
+        else:
+            word = verb_meaning.word
+            if word.has_tag(Tag(u'word.verb.transitive')):
+                verb_meaning.add_tag(t_tag)
+                log.debug(u'{0} tagged with {1}.', verb_meaning, t_tag)
+            elif word.has_tag(Tag(u'word.verb.intransitive')):
+                verb_meaning.add_tag(i_tag)
+                log.debug(u'{0} tagged with {1}.', verb_meaning, i_tag)
+            else:
+                raise Exception(
+                        u'Transitiveness is not specified for {0}'.format(
+                            word))
 
     if raw_input(u'Commit changes [y/N]:') == u'y':
         transaction.commit()

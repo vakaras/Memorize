@@ -66,6 +66,9 @@ class Verb(word.Word):
                 ] = word_meaning
         self.tag_tree.assign(word_meaning, id_lower_bound=100000)
         word_meaning.add_tag(Tag(u'word.verb.meaning'))
+        word_meaning.add_tag(
+                Tag(u'word.verb.meaning.{0}'.format(
+                    info[u'transitiveness'])))
         meaning.add_word(self)
         log.debug(
                 u'Verb {0} has meaning \"{1}\".',
@@ -119,12 +122,24 @@ class XMLVerbParser(word.XMLWordParser):
         examples = []
         for child in node:
             if child.tag == u'translation':
+                if transitiveness == u'both':
+                    if 'transitiveness' in child.attrib:
+                        translation_transitiveness = child.get(
+                                'transitiveness')
+                    else:
+                        raise Exception(
+                                u'Verb, which "transitiveness" is '
+                                u'set to "both", must have transitiveness '
+                                u'set for each meaning explicitly.')
+                else:
+                    translation_transitiveness = transitiveness
                 translations.append({
                     u'translation': unicode(child.get(u'value')),
                     u'comment': unicode(child.get(u'comment', u'')),
                     u'examples': [
                         int(nr)
                         for nr in child.get(u'example', u'').split()],
+                    u'transitiveness': translation_transitiveness,
                     })
             elif child.tag == u'part':
                 parts.append({

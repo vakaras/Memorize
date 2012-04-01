@@ -155,9 +155,9 @@ class VerbManipulatorPlugin(ManipulatorPlugin):
         tags = (
                 u'word.verb.transitive',
                 u'word.verb.intransitive',)
-        self.words = []
+        self.words = set()
         for tag in tags:
-            self.words.extend(
+            self.words.update(
                     self.plugin_manager.tag_tree.get_objects(
                         TagList((tag,))))
 
