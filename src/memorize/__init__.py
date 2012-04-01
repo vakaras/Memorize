@@ -16,10 +16,52 @@ from memorize.log import Logger
 from memorize.config import ConfigManager
 from memorize.parsers import ParsersManager
 from memorize.manipulators import ManipulatorsManager
-from memorize.tag_tree import TagList
+from memorize.tag_tree import TagList, Tag
 
 
 log = Logger('memorize', root=True)
+
+
+def update_db(config, args):
+    """ Updates ZODB.
+    """
+
+    log.info(u'Starting update.')
+
+    log.info(u'Tagging NounMeaning with gender.')
+    gender_tags = [
+            Tag(u'word.noun.meaning.{0}'.format(gender))
+            for gender in (u'feminine', u'masculine', u'neuter')]
+    def is_tagged(noun_meaning):
+        """ Checks if NounMeaning is tagged with gender.
+        """
+        for gender_tag in gender_tags:
+            if noun_meaning.has_tag(gender_tag):
+                return True
+        else:
+            return False
+    for noun_meaning in config.tag_tree.get_objects(
+            TagList(u'word.noun.meaning')):
+        if is_tagged(noun_meaning):
+            log.debug(u'Already tagged {0}.', noun_meaning)
+        else:
+            word = noun_meaning.word
+            for gender in (u'feminine', u'masculine', u'neuter'):
+                if word.has_tag(Tag(u'word.noun.{0}'.format(gender))):
+                    tag = Tag(u'word.noun.meaning.{0}'.format(gender))
+                    noun_meaning.add_tag(tag)
+                    log.debug(u'{0} tagged with {1}.', noun_meaning, tag)
+                    break
+            else:
+                raise Exception(u'Gender is not specified for {0}'.format(
+                    word))
+
+    if raw_input(u'Commit changes [y/N]:') == u'y':
+        transaction.commit()
+        log.info(u'Changes committed.')
+    else:
+        transaction.abort()
+        log.info(u'Changes aborted.')
 
 
 def sync(config, args):
@@ -128,6 +170,7 @@ def main(argv=sys.argv[1:]):
             'getid': get_free_id,
             'show': show_words,
             'show_meanings': show_meanings,
+            'update_db': update_db,
             }
 
     parser = argparse.ArgumentParser(description=__doc__)
