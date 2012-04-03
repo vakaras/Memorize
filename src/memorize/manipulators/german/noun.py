@@ -166,7 +166,7 @@ class NounQuestion(word.WordQuestion):
                           (unicode(word), 'green'),
                           u' '.join([
                               unicode(tag)
-                              for tag in self.word.get_tag_list()
+                              for tag in word.get_tag_list()
                               ]))
         write(u'\n')
 
