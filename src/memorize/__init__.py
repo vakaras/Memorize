@@ -9,6 +9,7 @@ foreign language words.
 import sys
 import argparse
 import random
+import datetime
 
 import transaction
 
@@ -108,6 +109,44 @@ def sync(config, args):
         log.info(u'Changes aborted.')
 
 
+def collect(tag_tree, tags):
+    """ Collects tagged objects.
+    """
+    objects = set()
+    for tag in tags:
+        objects.update(tag_tree.get_objects(TagList((tag,))))
+    return objects
+
+
+def print_word(word):
+    """ Prints word info.
+    """
+    print(u'"{0}";"{1}";"{2}"'.format(
+        word,
+        u' '.join(unicode(tag) for tag in word.get_tag_list()),
+        u'; '.join(
+            translation for translation in word.meanings)).encode('utf-8'))
+
+
+def dump_unlearned(config, args):
+    """ Dumps unlearned words for next 2 days.
+    """
+    until = datetime.date.today() + datetime.timedelta(days=2)
+    nouns = collect(
+            config.tag_tree,
+            (u'word.noun.feminine',
+                u'word.noun.masculine',
+                u'word.noun.neuter',))
+    verbs = collect(
+            config.tag_tree,
+            (u'word.verb.transitive', u'word.verb.intransitive',))
+    for word in sorted(nouns | verbs):
+        for word_meaning in word.meanings_date.values():
+            if word_meaning.get_next_practice().date() <= until:
+                print_word(word)
+                break
+
+
 def give_lesson(config, args):
     """ Gives a lesson.
     """
@@ -193,6 +232,7 @@ def main(argv=sys.argv[1:]):
             'show': show_words,
             'show_meanings': show_meanings,
             'update_db': update_db,
+            'dump_unlearned': dump_unlearned,
             }
 
     parser = argparse.ArgumentParser(description=__doc__)
