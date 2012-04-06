@@ -6,6 +6,7 @@
 
 
 import warnings
+import functools
 
 import persistent
 from BTrees.IOBTree import IOBTree
@@ -96,6 +97,7 @@ class WordMeaning(Memorizable):
             unicode(id(self))])
 
 
+@functools.total_ordering
 class Word(TaggedObject):
     """ Generic word.
 
@@ -135,6 +137,9 @@ class Word(TaggedObject):
         self.examples = IOBTree()
         for example in examples:
             self.examples[example.number] = example
+
+    def __lt__(self, other):
+        return unicode(self) < unicode(other)
 
     def _add_word_meanings(self, meaning, info):
         """ Adds word meanings.
