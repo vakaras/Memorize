@@ -142,10 +142,9 @@ class NounQuestion(word.WordQuestion):
                 writer.write_string(u'Incorrect answer.\n', 'red')
                 self.change_state(self.word, self.word_meaning, 1, write)
 
-        if len(self.word.meanings) > 1:
-            write(u'All meanings of \"{0}\":\n', unicode(self.word))
-            for translation in self.word.meanings:
-                write(u'  {0}\n', (translation, 'green'))
+        write(u'All meanings of \"{0}\":\n', unicode(self.word))
+        for translation in self.word.meanings:
+            write(u'  {0}\n', (translation, 'green'))
         write(u'Tags assigned to word: {0}\n',
               (u' '.join([
                   unicode(tag) for tag in self.word.get_tag_list()]),
