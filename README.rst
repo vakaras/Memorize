@@ -11,3 +11,11 @@ Dependencies
 On Ubuntu can be installed with a command::
     
     sudo apt-get install libxml2-dev libxslt1-dev 
+
+Idea
+====
+
+System consists of two parts:
+
++   data and
++   memorizable viewpoint.
