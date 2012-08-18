@@ -153,7 +153,7 @@ class Word(TaggedObject):
         self.meanings_date[word_meaning.get_date_key()
                 ] = word_meaning
         self.tag_tree.assign(word_meaning, id_lower_bound=100000)
-        word_meaning.add_tag(Tag(u'word.meaning'))
+        word_meaning.add_tag(Tag(u'meaning.word'))
         meaning.add_word(self)
         log.debug(
                 u'Word {0} has meaning \"{1}\".',
@@ -286,7 +286,7 @@ class XMLWordParser(object):
         for child in node:
             if child.tag == u'translation':
                 translations.append({
-                    u'translation': unicode(child.text),
+                    u'translation': unicode(child.attrib[u'value']),
                     u'comment': unicode(child.get(u'comment', u'')),
                     u'examples': [
                         int(nr)

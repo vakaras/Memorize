@@ -181,9 +181,7 @@ class WordManipulatorPlugin(ManipulatorPlugin):
         today = datetime.date.today()
         self.questions = []
         for word in self.words:
-            log.debug(u'Collected word: {0}', word.value)
-            # TODO: Find out, what is better: to ask one meaning at a time
-            # or all.
+            log.debug(u'Collected word: {0}', word)
             for date, meaning in word.meanings_date.items():
                 if meaning.get_next_practice().date() <= today:
                     self.questions.append(WordQuestion(
