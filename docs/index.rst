@@ -9,6 +9,7 @@ Contents:
     workflow.rst
     tag_tree.rst
     todo.rst
+    german.rst
 
 Indices and tables
 ==================
