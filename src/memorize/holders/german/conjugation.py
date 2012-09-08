@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 
+from memorize.tag_tree import TagList, Tag
 from memorize.log import Logger
 
 
@@ -188,11 +189,12 @@ class Past(object):
         return self.wir
 
 
-class Conjugator:
+class Conjugator(object):
     """ Conjugates German verb.
     """
 
-    def __init__(self, infinitive, conjugation_data):
+    def __init__(self, prefix, infinitive, conjugation_data):
+        self.prefix = prefix
         self.infinitive = infinitive
         self.conjugation_data = conjugation_data
         self.present = Present(
@@ -230,3 +232,36 @@ class Conjugator:
         """ Returns True if stem is kranto stem.
         """
         return is_kranton(self.stem)
+
+    def items(self):
+        """ Returns items for memorization.
+        """
+        if self.conjugation_data[u'perfect'][u'auxiliary'] == u'sein':
+            perfect_auxiliary = u'ist'
+        else:
+            perfect_auxiliary = u'hat'
+        if self.prefix:
+            participle = (
+                    self.prefix +
+                    self.conjugation_data[u'perfect'][u'participle'])
+            prefix = u' ' + self.prefix
+        else:
+            participle = self.conjugation_data[u'perfect'][u'participle']
+            prefix = u''
+        return [
+                (
+                    TagList(u'word.verb.form.präsens.es'),
+                    (u'Präsens', u'es'),
+                    self.present.es + prefix,
+                    ),
+                (
+                    TagList(u'word.verb.form.präteritum.es'),
+                    (u'Präteritum', u'es'),
+                    self.past.es + prefix,
+                    ),
+                (
+                    TagList(u'word.verb.form.perfekt.es'),
+                    (u'Perfekt', u'es'),
+                    perfect_auxiliary + u' ' + participle
+                    ),
+                ]
