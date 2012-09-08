@@ -22,14 +22,14 @@ class VerbQuestion(word.WordQuestion):
     """
 
     def show(self, file):
-        """ Prints question to file.
+        """ Prints question to a file.
         """
 
         log.debug(u'Showing WordQuestion.')
 
         write = Writer(file).write
 
-        write(u'Asking for german verb.\n')
+        write(u'Asking for German verb.\n')
         if self.word.comment:
             write(u'Word comment: {0}\n', self.word.comment)
         if self.word_meaning.examples:
@@ -141,6 +141,84 @@ class VerbQuestion(word.WordQuestion):
                         self.word.examples[nr])
 
 
+class VerbFormQuestion:
+    """ Question object for verb form.
+    """
+
+    def __init__(self, manipulator, word, form, old_date):
+        log.debug(u'Constructing WordQuestion.')
+
+        self.manipulator = manipulator
+        self.word = word
+        self.form = form
+        self.old_date = old_date
+
+    def show(self, file):
+        """ Prints question to a file.
+        """
+
+        write = Writer(file).write
+
+        write(u'Asking for German verb form.\n')
+        if self.word.comment:
+            write(u'Word comment: {0}\n', self.word.comment)
+        if self.word.examples:
+            for example in self.word.examples.values():
+                write(u'  {0.number}. {0.translation}\n', example)
+        if len(self.word.meanings) > 1:
+            write(u'All meanings of \"{0}\":\n', unicode(self.word))
+            for translation in self.word.meanings:
+                write(u'  {0}\n', (translation, 'green'))
+        write(u'Verb infinitive: {0}.\n',
+                (self.word.full_infinitive, 'green'))
+        write(u'Required form: {0}.\n', (u' '.join(self.form.key), 'green'))
+        write(u'Verb form tags: {0}.\n',
+                (u' '.join([
+                    unicode(tag)
+                    for tag in self.form.get_tag_list()
+                    ]),
+                    'green'))
+
+    def parse_answer(self, answer, file):
+        """ Parses user answer and prints response.
+        """
+
+        log.debug(u'Parsing user answer')
+
+        writer = Writer(file)
+        write = writer.write
+
+        write(u'Expected answer was \"{0}\". ', self.form.value)
+        if answer.strip() == self.form.value:
+            writer.write_string(u'Correct.\n', 'green')
+            self.change_state(self.word, self.form, 5, write)
+        else:
+            if not answer:
+                writer.write_string(u'No answer.\n', 'red')
+                self.change_state(self.word, self.form, 0, write)
+            else:
+                writer.write_string(u'Incorrect answer.\n', 'red')
+                self.change_state(self.word, self.form, 1, write)
+        if self.word.examples:
+            for example in self.word.examples.values():
+                write(
+                        (u'  {0.number}. {0.translation}\n'
+                        u'    {0.original}\n'), example)
+
+
+    def change_state(self, verb, verb_form, rating, write):
+        """ Changes state of ``verb_form``.
+        """
+
+        del verb.conjugation_forms_date[self.old_date]
+        time = verb_form.get_next_practice_unicode()
+        verb_form.plan(rating)
+        verb.conjugation_forms_date[verb_form.get_date_key()] = verb_form
+        write(u'  {0} (times: {1}) -> {2}\n'.format(
+            time, verb_form._successfully_practiced,
+            verb_form.get_next_practice_unicode()))
+
+
 class VerbManipulatorPlugin(ManipulatorPlugin):
     """ Manipulator which generates questions for verbs.
     """
@@ -172,6 +250,13 @@ class VerbManipulatorPlugin(ManipulatorPlugin):
                     self.questions.append(VerbQuestion(
                         self, word, meaning, date))
                     log.debug(u'Added meaning: {0}.', date)
+                else:
+                    break
+            for date, form in word.conjugation_forms_date.items():
+                if form.get_next_practice().date() <= today:
+                    self.questions.append(VerbFormQuestion(
+                        self, word, form, date))
+                    log.debug(u'Added form: {0}.', date)
                 else:
                     break
 
