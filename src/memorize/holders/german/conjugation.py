@@ -236,10 +236,15 @@ class Conjugator(object):
     def items(self):
         """ Returns items for memorization.
         """
-        if self.conjugation_data[u'perfect'][u'auxiliary'] == u'sein':
+        perfect_auxiliary_type = (
+                self.conjugation_data[u'perfect'][u'auxiliary'])
+        if perfect_auxiliary_type == u'sein':
             perfect_auxiliary = u'ist'
-        else:
+        elif perfect_auxiliary_type == u'haben':
             perfect_auxiliary = u'hat'
+        else:
+            raise ValueError(u'Uknown auxiliary: {0}.'.format(
+                perfect_auxiliary_type))
         if self.prefix:
             participle = (
                     self.prefix +
