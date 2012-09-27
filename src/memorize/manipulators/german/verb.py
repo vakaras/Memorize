@@ -165,10 +165,9 @@ class VerbFormQuestion:
         if self.word.examples:
             for example in self.word.examples.values():
                 write(u'  {0.number}. {0.translation}\n', example)
-        if len(self.word.meanings) > 1:
-            write(u'All meanings of \"{0}\":\n', unicode(self.word))
-            for translation in self.word.meanings:
-                write(u'  {0}\n', (translation, 'green'))
+        write(u'All meanings of \"{0}\":\n', unicode(self.word))
+        for translation in self.word.meanings:
+            write(u'  {0}\n', (translation, 'green'))
         write(u'Verb infinitive: {0}.\n',
                 (self.word.full_infinitive, 'green'))
         write(u'Required form: {0}.\n', (u' '.join(self.form.key), 'green'))
